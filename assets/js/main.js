@@ -44,11 +44,14 @@
       el.setAttribute("href", "mailto:" + (S.email || ""));
       el.textContent = S.email || "";
     });
+    // Blok yang hanya tampil bila datanya sudah diisi di config.js
+    document.querySelectorAll("[data-butuh]").forEach(function (el) {
+      var nilai = S[el.getAttribute("data-butuh")];
+      if (!nilai) el.remove();
+    });
     var th = document.querySelector("[data-tahun]");
     if (th) th.textContent = new Date().getFullYear();
-    if (S.brand) {
-      document.title = document.title.replace(/WL Textile/g, S.brand);
-    }
+
   }
 
   /* ---------- Jam operasional ---------- */

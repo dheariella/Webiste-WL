@@ -298,11 +298,13 @@ p { margin: 0 0 1.1em; }
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow-sm);
-  display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   margin-bottom: 18px;
 }
+.filter-bar .field { flex: 1 1 170px; min-width: 0; }
+.filter-bar .field:first-child { flex: 2.2 1 260px; }
 .field label { display: block; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-mute); margin-bottom: 6px; }
 .field input, .field select {
   width: 100%;
@@ -334,7 +336,7 @@ p { margin: 0 0 1.1em; }
 
 .result-count { font-size: .9rem; color: var(--ink-soft); margin-bottom: 18px; }
 
-.kain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.kain-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .kain-card {
   background: #fff;
   border: 1px solid var(--line);
@@ -358,7 +360,14 @@ p { margin: 0 0 1.1em; }
   background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.14) 0 1px, transparent 1px 6px),
                     repeating-linear-gradient(0deg, rgba(0,0,0,.08) 0 1px, transparent 1px 6px);
 }
-.kain-thumb .badge { position: relative; z-index: 1; background: rgba(255,255,255,.92); border-color: transparent; }
+.kain-thumb .badge {
+  position: relative; z-index: 1;
+  background: rgba(255,255,255,.93);
+  border-color: transparent;
+  font-size: .66rem;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
 .kain-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
 .kain-body h3 { margin-bottom: 4px; font-size: 1.18rem; }
 .kain-komposisi { font-size: .85rem; color: var(--ink-mute); margin-bottom: 14px; }
@@ -563,14 +572,82 @@ p { margin: 0 0 1.1em; }
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.is-visible { opacity: 1; transform: none; }
 
+
+/* ---------- Tambahan untuk katalog WL ---------- */
+.chip-count {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--cream-2);
+  color: var(--ink-mute);
+  font-size: .74rem;
+  font-weight: 700;
+}
+.chip.is-active .chip-count { background: rgba(255,255,255,.2); color: #fff; }
+
+.kain-kode {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  color: var(--terra-dark);
+  background: var(--terra-soft);
+  border-radius: 5px;
+  padding: 2px 7px;
+  margin-bottom: 8px;
+}
+
+.harga { color: var(--terra-dark); font-weight: 800; white-space: nowrap; }
+
+.kain-thumb { justify-content: space-between; align-items: flex-end; gap: 8px; }
+.badge--stok { background: rgba(37,211,102,.95) !important; color: #fff; font-size: .68rem; }
+
+.label-kecil {
+  font-family: var(--font-sans);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--ink-mute);
+  margin: 22px 0 10px;
+}
+
+.pill-list--warna {
+  max-height: 232px;
+  overflow-y: auto;
+  padding: 4px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: #fdfbf8;
+}
+.pill-list--warna li { font-size: .8rem; padding: 4px 10px; }
+
+.field[hidden] { display: none; }
+
+/* Baris harga di bawah kartu kategori beranda */
+.kategori-harga { font-size: .84rem; color: var(--terra-dark); font-weight: 700; margin-top: 10px; }
+
+/* Catatan data */
+.note-box {
+  border: 1px dashed var(--line);
+  background: #fdfbf8;
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  font-size: .92rem;
+  color: var(--ink-soft);
+}
+.note-box strong { color: var(--navy-900); }
+
 /* ---------- 6. Responsif ---------- */
 @media (max-width: 960px) {
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid-3, .kain-grid, .post-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid-3, .post-grid { grid-template-columns: repeat(2, 1fr); }
+  .kain-grid { grid-template-columns: repeat(2, 1fr); }
   .hero-grid, .split { grid-template-columns: 1fr; gap: 38px; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .footer-grid { grid-template-columns: 1fr 1fr; }
-  .filter-bar { grid-template-columns: 1fr 1fr; }
+
 
   .nav-toggle { display: block; }
   .site-nav {
@@ -596,7 +673,8 @@ p { margin: 0 0 1.1em; }
 
 @media (max-width: 620px) {
   .section { padding: 60px 0; }
-  .grid-2, .grid-3, .grid-4, .kain-grid, .post-grid, .pro-con, .filter-bar { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4, .kain-grid, .post-grid, .pro-con { grid-template-columns: 1fr; }
+  .filter-bar .field, .filter-bar .field:first-child { flex: 1 1 100%; }
   .footer-grid { grid-template-columns: 1fr; gap: 28px; }
   .hero { padding: 64px 0 72px; }
   .swatch--2, .swatch--3, .swatch--4 { margin-top: 0; }

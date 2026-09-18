@@ -1,54 +1,69 @@
-# Website Toko Kain — WL Textile
+# Website Wahyu Lestari Textile
 
-Website profil toko kain: profil usaha, keunggulan, katalog *product knowledge* (nama kain,
-komposisi, gramasi, lebar kain, konstruksi, kelebihan/kekurangan, perawatan), artikel/blog,
-dan tombol *call to action* yang langsung membuka WhatsApp.
+Website profil toko kain **Wahyu Lestari Textile** (Bandung): profil usaha, keunggulan,
+katalog *product knowledge* (nama kain, kode, komposisi, lebar kain, harga, pilihan warna),
+artikel/blog, dan tombol *call to action* yang langsung membuka WhatsApp.
 
-Dibangun sebagai **situs statis** (HTML + CSS + JavaScript biasa). Tidak butuh Node.js,
-tidak butuh proses build, tidak butuh database. Cukup unggah foldernya ke hosting mana pun.
-
----
-
-## 1. Yang pertama harus diubah
-
-Semua identitas toko berada di **satu file**: [`assets/js/config.js`](assets/js/config.js).
-Anda tidak perlu menyunting file HTML satu per satu.
-
-| Isi yang wajib diganti | Keterangan |
-|---|---|
-| `waNumber` | **Nomor WhatsApp toko.** Saat ini masih contoh: `6281234567890`. Format internasional, tanpa `+` dan tanpa spasi. Nomor `0812-3456-7890` ditulis `6281234567890`. |
-| `brand`, `tagline` | Nama toko dan slogan. |
-| `telepon`, `email` | Kontak lain. |
-| `alamat`, `kota`, `mapsUrl` | Alamat toko dan tautan Google Maps. |
-| `jam` | Jam operasional. |
-| `instagram`, `tiktok`, `shopee` | Media sosial. |
-| `stats` | Angka-angka di beranda (tahun berdiri, jumlah jenis kain, dll). |
-
-> **Penting:** angka-angka di `stats`, teks "Supplier kain sejak 2014" di beranda, serta
-> beberapa klaim di halaman *Tentang Kami* masih berupa contoh. Sesuaikan dengan kondisi
-> toko Anda yang sebenarnya sebelum website dipublikasikan.
-
-Beberapa teks yang perlu disesuaikan manual karena tertulis langsung di HTML:
-
-- `index.html` — eyebrow "Supplier kain sejak 2014" dan jawaban FAQ (minimal order, ongkos sampel, dll).
-- `tentang.html` — cerita dan komitmen toko.
-- `sitemap.xml` dan `robots.txt` — ganti `https://www.namadomainanda.com` dengan domain asli.
+Situs **statis** (HTML + CSS + JavaScript biasa). Tanpa Node.js, tanpa proses build, tanpa
+database. Cukup unggah foldernya ke hosting mana pun.
 
 ---
 
-## 2. Struktur folder
+## 1. Dari mana datanya
+
+Isi website diambil dari folder Google Drive **Website WL**:
+
+| Sumber di Drive | Dipakai untuk | File di repositori ini |
+|---|---|---|
+| Sheet `WL — PENGATURAN` | Nama toko, WhatsApp, alamat, jam buka, Instagram, email | `assets/js/config.js` |
+| Sheet `WL — KAIN` | 33 jenis kain: kode, nama, kategori, komposisi, lebar, harga, satuan | `assets/js/produk-data.js` |
+| Sheet `WL — WARNA` | 150 nama warna berstatus READY, dikelompokkan per kode kain | `assets/js/produk-data.js` |
+
+Data di sini adalah **salinan**, bukan sambungan langsung ke Google Sheet. Kalau sheet
+diperbarui, datanya perlu disalin lagi ke dua file di atas (lihat bagian 4 dan 5).
+
+`DATA WEBSITE WL.xlsx` tidak terbaca lewat konektor Drive dan tampaknya merupakan versi
+awal dari ketiga sheet di atas, jadi tidak dipakai. `WL logo.pdf` juga belum dipakai —
+lihat bagian 8.
+
+---
+
+## 2. Yang masih perlu Anda lengkapi
+
+Beberapa kolom di Google Sheet masih kosong, sehingga bagiannya **sengaja disembunyikan**
+di website supaya tidak tampil setengah jadi. Begitu diisi, bagiannya otomatis muncul.
+
+| Kolom kosong | Ada di | Efeknya sekarang |
+|---|---|---|
+| `gramasi_gsm` | sheet KAIN (semua baris) | Baris "Gramasi" dan filter gramasi di katalog tidak ditampilkan |
+| `cocok_untuk` | sheet KAIN (semua baris) | Daftar "Cocok untuk" tidak ditampilkan |
+| `deskripsi` | sheet KAIN (semua baris) | Paragraf penjelasan per kain tidak ditampilkan |
+| `harga_roll` | sheet KAIN (semua baris) | Baris "Harga per roll" tidak ditampilkan |
+| `kode_hex`, `link_foto` | sheet WARNA | Warna tampil sebagai nama saja, belum ada kotak warna atau foto |
+| `min_order` | sheet PENGATURAN | Blok "Minimal pembelian" di halaman kontak tidak ditampilkan |
+| `info_ongkir` | sheet PENGATURAN | Blok "Pengiriman" di halaman kontak tidak ditampilkan |
+| `pesan_whatsapp` | sheet PENGATURAN | Dipakai teks bawaan di `config.js` |
+
+**Dua baris yang perlu dicek ulang di sheet KAIN:** `PS1 Modal Viscose (Rayon Nola)` dan
+`PS2 Rayon Spandex` tercatat berkomposisi **Polyester**. Nama kainnya menunjukkan serat
+rayon/viscose, jadi kemungkinan kolom komposisinya belum disesuaikan. Website menampilkan
+apa adanya sesuai sheet — silakan perbaiki di sheet lalu salin ulang bila memang keliru.
+
+---
+
+## 3. Struktur folder
 
 ```
-index.html              Beranda: hero, keunggulan, kategori, cara pesan, FAQ, CTA
-tentang.html            Profil toko, nilai, dan layanan
-produk.html             Katalog + product knowledge (pencarian, filter, detail spesifikasi)
+index.html              Beranda: hero, statistik, keunggulan, kategori, cara pesan, FAQ
+tentang.html            Profil toko dan layanan
+produk.html             Katalog 33 kain: cari, filter kategori & lebar, urutkan, detail
 blog.html               Daftar artikel
-kontak.html             Alamat, jam buka, dan formulir penyusun pesan WhatsApp
+kontak.html             Alamat, jam buka, formulir penyusun pesan WhatsApp
 404.html                Halaman tidak ditemukan
 blog/                   Isi artikel (6 artikel)
 assets/css/style.css    Seluruh tampilan
-assets/js/config.js     >> DATA TOKO — ubah di sini
-assets/js/produk-data.js>> DATA KAIN — 34 jenis kain
+assets/js/config.js     >> DATA TOKO — dari sheet PENGATURAN
+assets/js/produk-data.js>> DATA KAIN & WARNA — dari sheet KAIN + WARNA
 assets/js/main.js       Menu, tautan WhatsApp, animasi
 assets/js/produk.js     Pencarian, filter, dan detail katalog
 sitemap.xml, robots.txt Untuk mesin pencari
@@ -56,82 +71,107 @@ sitemap.xml, robots.txt Untuk mesin pencari
 
 ---
 
-## 3. Cara menjalankan di komputer sendiri
+## 4. Mengubah data toko
 
-Buka `index.html` langsung dengan browser sudah cukup. Agar semua berfungsi persis seperti
-di server (termasuk tautan antar-halaman), jalankan server lokal sederhana:
+Buka `assets/js/config.js`. Isinya sudah sesuai sheet PENGATURAN per 18 September 2026:
 
-```bash
-python3 -m http.server 8000
-# lalu buka http://localhost:8000
-```
+| Isi | Nilai sekarang |
+|---|---|
+| `brand` | Wahyu Lestari Textile |
+| `tagline` | Your Fabric Partner |
+| `waNumber` | 6282123879317 |
+| `alamat` | Jalan Dulatip No. 69, Kota Bandung |
+| `jam` | Senin–Jumat 09.00–16.30, Sabtu 09.00–16.00, Minggu tutup |
+| `instagram` | @wltextile |
+| `email` | wahyulestari90817@gmail.com |
+| `tampilkanHarga` | `true` — harga per yard tampil di katalog |
+
+Ubah `tampilkanHarga` menjadi `false` bila sewaktu-waktu Anda ingin menyembunyikan harga
+dari website; kartu kain akan berubah menjadi hanya tombol tanya via WhatsApp.
+
+Isi `minOrder` dan `infoOngkir` untuk memunculkan blok ketentuan pembelian di halaman kontak.
 
 ---
 
-## 4. Menambah atau mengubah jenis kain
+## 5. Menambah atau mengubah kain
 
-Buka `assets/js/produk-data.js`. Salin satu blok yang sudah ada, lalu ubah isinya:
+Buka `assets/js/produk-data.js`, salin satu blok yang sudah ada, lalu ubah isinya:
 
 ```js
 {
-  id: "nama-kain-baru",          // huruf kecil, pakai tanda hubung, tidak boleh sama dengan yang lain
-  nama: "Nama Kain Baru",
-  kategori: "Kaos & Rajut",      // kategori baru otomatis muncul sebagai tombol filter
-  komposisi: "100% katun",
-  gramasi: "140 – 160 gsm",      // teks yang ditampilkan
-  gsm: 150,                      // angka rata-rata, dipakai untuk filter gramasi
-  lebar: "Open width 160 cm",
-  konstruksi: "Single knit",
-  tekstur: "Halus dan ringan",
-  satuan: "Kiloan atau meteran",
-  warna: "30+ warna ready stock",
-  swatch: ["#e9e4dc", "#b9b1a5"], // dua warna untuk gambar kartu
-  kelebihan: ["...", "..."],
-  kekurangan: ["...", "..."],
-  cocok: ["Kaos distro", "Kaos promosi"],
-  perawatan: "Cuci air dingin, jemur terbalik.",
-  catatan: "Tips singkat dari toko (opsional)."
-},
+  "id": "vp2",                     // huruf kecil dari kode, harus unik
+  "kode": "VP2",                   // kode di sheet KAIN
+  "nama": "Nama Kain",
+  "kategori": "Kerudung Segi Empat",   // kategori baru otomatis jadi tombol filter
+  "komposisi": "Polyester",
+  "lebarCm": 125,                  // angka saja, dipakai untuk filter lebar
+  "lebar": "125 cm",               // teks yang ditampilkan
+  "gramasi": "",                   // isi mis. "80 – 100 gsm" bila sudah diketahui
+  "gsm": null,                     // isi angka mis. 90 supaya filter gramasi aktif
+  "harga": 25000,                  // angka rupiah, tanpa titik
+  "satuan": "Yard",                // "Yard" atau "KG"
+  "hargaRoll": null,
+  "cocok": [],                     // mis. ["Kerudung segi empat", "Tunik"]
+  "deskripsi": "",
+  "ketKategori": "...",
+  "warna": ["Navy", "Sand"],       // dari sheet WARNA, yang berstatus READY
+  "stok": "READY",
+  "swatch": ["#cdb0bb", "#7d5a6b"],// dua warna untuk gambar kartu
+  "urutan": 35
+}
 ```
 
-Kartu, filter, pencarian, dan halaman detail akan menyesuaikan sendiri. Jumlah kain yang
-tertulis di judul halaman `produk.html` ("34 jenis kain") perlu diubah manual bila berubah banyak.
+Kartu, chip kategori, filter lebar, pencarian, dan halaman detail menyesuaikan sendiri.
+Jumlah kain yang tertulis di judul `produk.html`, `index.html`, dan `404.html`
+("33 jenis kain") perlu diubah manual bila jumlahnya berubah banyak.
 
-Setiap kain punya tautan langsung, misalnya `produk.html#combed-24s` — membuka halaman
-katalog sekaligus menampilkan detail kain tersebut. Tautan inilah yang dipakai di artikel.
+Setiap kain punya tautan langsung, misalnya `produk.html#sv1` — membuka katalog sekaligus
+menampilkan detail kain tersebut. Tautan inilah yang dipakai di dalam artikel.
 
 ---
 
-## 5. Menambah artikel baru
+## 6. Menambah artikel baru
 
-1. Salin salah satu file di folder `blog/` menjadi file baru, misalnya `blog/judul-artikel-baru.html`.
-2. Ubah `<title>`, `<meta name="description">`, judul `<h1>`, daftar isi, dan isi artikelnya.
-3. Tambahkan kartu artikel baru di `blog.html` (salin satu blok `<article class="post-card">`
-   yang sudah ada) dan, bila ingin tampil di beranda, di `index.html`.
+1. Salin salah satu file di folder `blog/` menjadi file baru.
+2. Ubah `<title>`, `<meta name="description">`, judul `<h1>`, daftar isi, dan isinya.
+3. Tambahkan kartu artikel di `blog.html` (salin satu blok `<article class="post-card">`),
+   dan bila ingin tampil di beranda, di `index.html`.
 4. Tambahkan alamatnya ke `sitemap.xml`.
 
+Enam artikel yang sekarang ada: beda voal/paris/ceruti, apa itu kain PFP, menghitung
+kebutuhan kain dari yard, memilih lebar kain, memilih bahan gamis, dan merawat kerudung voal.
+
 ---
 
-## 6. Cara tombol WhatsApp bekerja
+## 7. Cara tombol WhatsApp bekerja
 
-Setiap elemen yang punya atribut `data-wa` otomatis berubah menjadi tautan WhatsApp:
+Setiap elemen dengan atribut `data-wa` otomatis menjadi tautan WhatsApp ke nomor di
+`config.js`:
 
 ```html
 <a class="btn btn-wa" data-wa>Chat WhatsApp</a>
 
 <!-- dengan pesan khusus -->
-<a class="btn btn-wa" data-wa data-wa-text="Halo, saya mau tanya stok Combed 24s.">Tanya stok</a>
+<a class="btn btn-wa" data-wa data-wa-text="Halo, saya mau tanya Sahara Voal.">Tanya stok</a>
 ```
 
-Bila `data-wa-text` tidak diisi, pesan yang dipakai adalah `waDefaultText` dari `config.js`.
-Tombol "Tanya harga" pada setiap kartu kain otomatis menyertakan nama kainnya.
-
-Formulir di halaman kontak tidak mengirim data ke mana pun dan tidak menyimpan apa pun —
-isiannya hanya disusun menjadi teks pesan WhatsApp yang rapi.
+Tombol "Pesan" pada setiap kartu kain otomatis menyertakan nama dan kode kainnya.
+Formulir di halaman kontak tidak mengirim atau menyimpan data apa pun — isiannya hanya
+disusun menjadi teks pesan WhatsApp.
 
 ---
 
-## 7. Cara mempublikasikan
+## 8. Logo
+
+Website saat ini memakai monogram **WL** yang dibuat dengan CSS, bukan file logo.
+`WL logo.pdf` di Google Drive belum dipakai karena tidak bisa diambil lewat konektor.
+Untuk memakainya: ekspor logo menjadi PNG atau SVG berlatar transparan, simpan sebagai
+`assets/img/logo.png`, lalu ganti bagian `<span class="logo-mark">WL</span>` di setiap file
+HTML dengan `<img src="assets/img/logo.png" alt="Wahyu Lestari Textile" class="logo-mark">`.
+
+---
+
+## 9. Cara mempublikasikan
 
 **GitHub Pages** (gratis)
 1. Buka *Settings* → *Pages* pada repositori ini.
@@ -139,16 +179,20 @@ isiannya hanya disusun menjadi teks pesan WhatsApp yang rapi.
 3. Tunggu beberapa menit, alamat website akan muncul di halaman yang sama.
 
 **Netlify / Vercel / cPanel**
-Unggah seluruh isi folder ini apa adanya. Tidak ada perintah build yang perlu dijalankan
-(*build command* dikosongkan, *publish directory* diisi `.`).
+Unggah seluruh isi folder apa adanya. Tidak ada perintah build (*build command* dikosongkan,
+*publish directory* diisi `.`).
+
+Setelah punya domain, ganti `https://www.namadomainanda.com` di `sitemap.xml` dan
+`robots.txt` dengan alamat asli.
 
 ---
 
-## 8. Catatan teknis
+## 10. Catatan teknis
 
-- Tampilan sudah responsif untuk ponsel, tablet, dan desktop.
-- Huruf diambil dari Google Fonts; bila koneksi ke Google Fonts terhambat, tampilan tetap
-  rapi dengan huruf bawaan sistem.
-- Tidak ada pelacak, tidak ada cookie, dan tidak ada data pengunjung yang disimpan.
-- Sudah dilengkapi `sitemap.xml`, `robots.txt`, meta description per halaman, dan data
-  terstruktur `Store` (schema.org) di beranda — ganti datanya di `index.html` sesuai toko Anda.
+- Tampilan responsif untuk ponsel, tablet, dan desktop; sudah diuji pada lebar 390 px.
+- Huruf dari Google Fonts; bila tidak termuat, tampilan tetap rapi dengan huruf sistem.
+- Tidak ada pelacak, cookie, atau data pengunjung yang disimpan.
+- Sudah dilengkapi meta description per halaman, `sitemap.xml`, `robots.txt`, dan data
+  terstruktur schema.org `Store` di beranda.
+- Harga yang tampil disertai keterangan bahwa harga dapat berubah dan perlu dikonfirmasi
+  lewat WhatsApp.

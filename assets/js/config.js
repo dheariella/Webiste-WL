@@ -1,50 +1,62 @@
 /* =========================================================================
    KONFIGURASI SITUS — UBAH DI SINI SAJA
-   Semua nomor WhatsApp, alamat, dan identitas toko diambil dari file ini.
-   Tidak perlu mengedit file HTML satu per satu.
+   Diambil dari Google Sheet "WL — PENGATURAN" (folder Drive: Website WL).
+   Semua nomor WhatsApp, alamat, dan identitas toko dibaca dari file ini,
+   jadi tidak perlu mengedit file HTML satu per satu.
    ========================================================================= */
 window.SITE = {
-  // Nama & identitas toko
-  brand: "WL Textile",
-  tagline: "Grosir & Eceran Kain Berkualitas",
+  // Identitas toko
+  brand: "Wahyu Lestari Textile",
+  brandPendek: "WL Textile",
+  tagline: "Your Fabric Partner",
   deskripsiSingkat:
-    "Supplier kain untuk konveksi, brand fashion, penjahit, dan seragam. " +
-    "Stok lengkap, gramasi jujur, potong meteran maupun roll.",
+    "Supplier kain kerudung, gamis, kemeja, dan celana di Bandung. " +
+    "Voal, paris, ceruti, sublim PFP, jacquard — siap potong yard maupun roll.",
 
-  // Nomor WhatsApp format internasional TANPA tanda + dan tanpa spasi.
-  // Contoh: 0812-3456-7890  ->  "6281234567890"
-  waNumber: "6281234567890",
+  // Nomor WhatsApp, format internasional tanpa + dan tanpa spasi
+  waNumber: "6282123879317",
 
-  // Teks default yang muncul di chat WhatsApp saat tombol diklik
+  // Teks default saat tombol WhatsApp diklik
+  // (kolom pesan_whatsapp di sheet PENGATURAN masih kosong — ubah bila perlu)
   waDefaultText:
-    "Halo WL Textile, saya mau tanya-tanya soal kain. Boleh minta info stok dan harganya?",
+    "Halo WL Textile, saya mau tanya-tanya soal kain. Boleh minta info stok warna dan harganya?",
 
-  // Kontak lain
-  telepon: "0812-3456-7890",
-  email: "halo@wltextile.co.id",
+  // Kontak
+  telepon: "0821-2387-9317",
+  email: "wahyulestari90817@gmail.com",
 
-  // Lokasi toko
-  alamat: "Jl. Tekstil Raya No. 12, Blok A",
-  kota: "Bandung, Jawa Barat 40234",
-  mapsUrl: "https://maps.google.com/?q=Jl.+Tekstil+Raya+No.+12+Bandung",
+  // Lokasi
+  alamat: "Jalan Dulatip No. 69",
+  kota: "Kota Bandung, Jawa Barat",
+  mapsUrl: "https://maps.app.goo.gl/JEJead71RHPqcxR39",
 
   // Jam operasional
   jam: [
-    { hari: "Senin – Jumat", buka: "08.00 – 17.00 WIB" },
-    { hari: "Sabtu", buka: "08.00 – 15.00 WIB" },
-    { hari: "Minggu & Hari Libur", buka: "Tutup (chat tetap dibalas)" }
+    { hari: "Senin – Jumat", buka: "09.00 – 16.30 WIB" },
+    { hari: "Sabtu", buka: "09.00 – 16.00 WIB" },
+    { hari: "Minggu & Hari Libur", buka: "Tutup" }
   ],
 
-  // Media sosial (kosongkan string bila belum punya)
-  instagram: "https://instagram.com/",
-  tiktok: "https://tiktok.com/",
+  // Media sosial (kosongkan string bila belum dipakai)
+  instagramNama: "@wltextile",
+  instagram: "https://instagram.com/wltextile",
+  tiktok: "",
   shopee: "",
 
-  // Angka-angka untuk bagian statistik di beranda
+  // Ketentuan pembelian.
+  // Kolom min_order & info_ongkir di sheet PENGATURAN masih kosong —
+  // isi di sini supaya tampil di FAQ dan halaman kontak.
+  minOrder: "",
+  infoOngkir: "",
+
+  // Tampilkan harga di katalog? true = tampil, false = hanya "cek via WhatsApp"
+  tampilkanHarga: true,
+
+  // Angka pada bagian statistik beranda
   stats: [
-    { angka: "12+", label: "Tahun melayani konveksi" },
-    { angka: "150+", label: "Jenis & varian kain" },
-    { angka: "2.000+", label: "Pelanggan brand & konveksi" },
-    { angka: "24 jam", label: "Respons chat maksimal" }
+    { angka: "33", label: "Jenis kain ready stock" },
+    { angka: "150", label: "Pilihan warna tercatat" },
+    { angka: "21", label: "Varian voal PFP siap sublim" },
+    { angka: "Bandung", label: "Toko fisik, kirim se-Indonesia" }
   ]
 };
