@@ -34,9 +34,9 @@
 
 <section class="page-hero">
   <div class="container">
-    <span class="eyebrow">Kontak</span>
-    <h1>Hubungi kami</h1>
-    <p>Cara tercepat adalah lewat WhatsApp — chat Anda dibalas staf toko yang tahu kondisi stok hari itu. Anda juga selalu boleh datang langsung untuk melihat dan meraba kainnya.</p>
+    <span class="eyebrow" data-teks="kontak_eyebrow">Kontak</span>
+    <h1 data-teks="kontak_judul">Hubungi kami</h1>
+    <p data-teks="kontak_lead">Cara tercepat adalah lewat WhatsApp &mdash; chat Anda dibalas staf toko yang tahu kondisi stok hari itu. Anda juga selalu boleh datang langsung untuk melihat dan meraba kainnya.</p>
   </div>
 </section>
 
@@ -67,7 +67,7 @@
           </div>
           <div class="field" style="margin-bottom:14px">
             <label for="fKain">Kain yang diminati</label>
-            <input type="text" id="fKain" placeholder="Contoh: Sahara Voal (SV1) atau Voal Ceruti 58&quot; PFP">
+            <input type="text" id="fKain" placeholder="Contoh: Sahara Voal atau Voal Ceruti 58&quot; PFP">
           </div>
           <div class="field" style="margin-bottom:14px">
             <label for="fWarna">Warna yang dicari</label>
@@ -97,12 +97,12 @@
   <div class="container">
     <div class="section-head section-head--center">
       <span class="eyebrow">Sebelum bertanya</span>
-      <h2>Tiga hal yang membuat jawaban kami lebih cepat</h2>
+      <h2 data-teks="kontak_tips_judul">Tiga hal yang membuat jawaban kami lebih cepat</h2>
     </div>
     <div class="grid grid-3">
-      <div class="card"><h3>1. Sebutkan nama atau kode kainnya</h3><p class="small muted" style="margin:0">Kode seperti <strong>VP1</strong> atau <strong>PF5</strong> ada di setiap kartu kain di katalog. Menyebut kode membuat pesanan tidak tertukar.</p></div>
-      <div class="card"><h3>2. Sebutkan warna dan jumlahnya</h3><p class="small muted" style="margin:0">Nama warna mengikuti katalog kami. Dengan tahu perkiraan jumlah, kami bisa langsung cek sisa stok rollnya.</p></div>
-      <div class="card"><h3>3. Sebutkan kota tujuan</h3><p class="small muted" style="margin:0">Supaya kami bisa langsung menghitung ongkos kirim dan memperkirakan waktu sampainya.</p></div>
+      <div class="card"><h3 data-teks="kontak_tips1_judul">1. Sebutkan nama kainnya</h3><p class="small muted" style="margin:0" data-teks="kontak_tips1_teks">Nama kain bisa Anda salin dari katalog. Menyebut nama lengkapnya membuat pesanan tidak tertukar dengan kain lain yang mirip.</p></div>
+      <div class="card"><h3 data-teks="kontak_tips2_judul">2. Sebutkan warna dan jumlahnya</h3><p class="small muted" style="margin:0" data-teks="kontak_tips2_teks">Nama warna mengikuti katalog kami. Dengan tahu perkiraan jumlah, kami bisa langsung cek sisa stok rollnya.</p></div>
+      <div class="card"><h3 data-teks="kontak_tips3_judul">3. Sebutkan kota tujuan</h3><p class="small muted" style="margin:0" data-teks="kontak_tips3_teks">Supaya kami bisa langsung menghitung ongkos kirim dan memperkirakan waktu sampainya.</p></div>
     </div>
   </div>
 </section>
@@ -186,5 +186,6 @@
   perbarui();
 })();
 </script>
+<script src="assets/js/sheet-sync.js"></script>
 </body>
 </html>

@@ -9,49 +9,115 @@ database. Cukup unggah foldernya ke hosting mana pun.
 
 ---
 
-## 1. Dari mana datanya
+## 1. Website ini tersambung ke Google Sheet Anda
 
-Isi website diambil dari folder Google Drive **Website WL**:
+Isi website dibaca langsung dari empat Google Sheet di folder Drive **Website WL**.
+Anda ubah di sheet, website ikut berubah &mdash; tidak perlu menyentuh kode.
 
-| Sumber di Drive | Dipakai untuk | File di repositori ini |
-|---|---|---|
-| Sheet `WL — PENGATURAN` | Nama toko, WhatsApp, alamat, jam buka, Instagram, email | `assets/js/config.js` |
-| Sheet `WL — KAIN` | 33 jenis kain: kode, nama, kategori, komposisi, lebar, harga, satuan | `assets/js/produk-data.js` |
-| Sheet `WL — WARNA` | 150 nama warna berstatus READY, dikelompokkan per kode kain | `assets/js/produk-data.js` |
+| Sheet di Drive | Mengatur apa |
+|---|---|
+| `WL — KAIN` | Daftar kain: nama, kategori, komposisi, lebar, gramasi, harga, satuan, urutan |
+| `WL — WARNA` | Pilihan warna tiap kain |
+| `WL — PENGATURAN` | Nama toko, WhatsApp, alamat, jam buka, Instagram, email, minimal order, ongkir |
+| `WL — TEKS` | Tulisan di halaman: judul beranda, Tentang Kami, keunggulan, FAQ, dan lainnya |
 
-Data di sini adalah **salinan**, bukan sambungan langsung ke Google Sheet. Kalau sheet
-diperbarui, datanya perlu disalin lagi ke dua file di atas (lihat bagian 4 dan 5).
+**Cara kerjanya.** Setiap halaman dibuka, website menampilkan salinan data yang tersimpan
+di dalamnya dulu (cepat, selalu ada), lalu di latar belakang membaca Google Sheet dan
+memperbarui isinya. Kalau sheet tidak bisa dibaca &mdash; belum dibagikan, tidak ada internet,
+Google sedang bermasalah &mdash; website tetap tampil memakai salinan terakhir. Tidak pernah kosong.
 
-`DATA WEBSITE WL.xlsx` tidak terbaca lewat konektor Drive dan tampaknya merupakan versi
-awal dari ketiga sheet di atas, jadi tidak dipakai. `WL logo.pdf` juga belum dipakai —
-lihat bagian 8.
+Perubahan di sheet umumnya muncul di website dalam **sekitar 5 menit** (Google menyimpan
+sementara isi sheet sebelum membagikannya).
+
+### Yang harus dilakukan sekali saja agar sambungan aktif
+
+**1. Bagikan keempat sheet.** Buka tiap sheet → tombol **Share** → bagian *General access* →
+ubah dari *Restricted* menjadi **Anyone with the link**, peran **Viewer** → Done.
+
+Selama ini belum dilakukan, website tetap jalan normal memakai salinan datanya.
+
+**2. Isi sheet `WL — TEKS`.** Sheet itu sudah dibuatkan tetapi masih kosong. Isinya:
+
+1. Unduh berkas [`data/WL-TEKS.csv`](data/WL-TEKS.csv) dari repositori ini
+   (klik berkasnya → tombol **Download raw file**).
+2. Buka sheet `WL — TEKS` di Drive.
+3. Menu **File → Import → Upload**, pilih berkas tadi.
+4. Pada *Import location* pilih **Replace current sheet**, lalu **Import data**.
+
+Setelah itu sheet berisi 151 baris: setiap baris adalah satu potongan tulisan di website,
+lengkap dengan teks yang sekarang tampil.
+
+**3. Matikan bila perlu.** Bila suatu saat ingin memutus sambungan, buka
+`assets/js/config.js` dan ubah `aktif: true` menjadi `aktif: false` pada bagian `sheet`.
 
 ---
 
-## 2. Yang masih perlu Anda lengkapi
+## 2. Mengubah tulisan di website
+
+Semua lewat sheet **`WL — TEKS`**. Aturannya:
+
+- **Kolom `kunci` jangan diubah.** Itu penanda yang dipakai website untuk tahu tulisan ini
+  muncul di sebelah mana.
+- **Kolom `halaman` dan `bagian`** hanya penunjuk lokasi supaya mudah dicari. Boleh diabaikan.
+- **Kolom `isi`** inilah yang Anda ubah.
+- **Kalau kolom `isi` dikosongkan**, website memakai tulisan bawaannya. Aman kalau ada baris
+  yang belum sempat diisi.
+
+### Angka yang mengisi dirinya sendiri
+
+Di beberapa baris ada penanda dalam kurung kurawal. Website menggantinya dengan angka
+sebenarnya saat halaman dibuka, jadi Anda tidak perlu memperbarui angka setiap kali
+menambah kain:
+
+| Penanda | Diganti menjadi | Nilai sekarang |
+|---|---|---|
+| `{jumlah_kain}` | Banyaknya kain di katalog | 33 |
+| `{jumlah_warna}` | Total pilihan warna | 150 |
+| `{jumlah_kategori}` | Banyaknya kategori | 6 |
+| `{jumlah_sublim}` | Banyaknya kain Kerudung Sublim | 21 |
+
+Contoh: kalau kolom `isi` ditulis `Sekarang ada {jumlah_kain} jenis kain`, yang tampil di
+website adalah "Sekarang ada 33 jenis kain" &mdash; dan berubah sendiri jadi 34 begitu Anda
+menambah satu kain di sheet `WL — KAIN`.
+
+### Tanda baca khusus
+
+Kolom `isi` boleh berisi penanda HTML sederhana bila perlu:
+`<strong>tebal</strong>`, `<em>miring</em>`, `&mdash;` untuk tanda pisah panjang,
+`&amp;` untuk tanda "dan". Tanpa itu pun tetap aman &mdash; tulis biasa saja.
+
+---
+
+## 3. Yang masih perlu Anda lengkapi
 
 Beberapa kolom di Google Sheet masih kosong, sehingga bagiannya **sengaja disembunyikan**
-di website supaya tidak tampil setengah jadi. Begitu diisi, bagiannya otomatis muncul.
+di website supaya tidak tampil setengah jadi. Begitu diisi di sheet, bagiannya otomatis muncul.
 
 | Kolom kosong | Ada di | Efeknya sekarang |
 |---|---|---|
-| `gramasi_gsm` | sheet KAIN (semua baris) | Baris "Gramasi" dan filter gramasi di katalog tidak ditampilkan |
+| `gramasi_gsm` | sheet KAIN (semua baris) | Baris "Gramasi" dan filter gramasi tidak ditampilkan |
 | `cocok_untuk` | sheet KAIN (semua baris) | Daftar "Cocok untuk" tidak ditampilkan |
 | `deskripsi` | sheet KAIN (semua baris) | Paragraf penjelasan per kain tidak ditampilkan |
 | `harga_roll` | sheet KAIN (semua baris) | Baris "Harga per roll" tidak ditampilkan |
 | `kode_hex`, `link_foto` | sheet WARNA | Warna tampil sebagai nama saja, belum ada kotak warna atau foto |
 | `min_order` | sheet PENGATURAN | Blok "Minimal pembelian" di halaman kontak tidak ditampilkan |
 | `info_ongkir` | sheet PENGATURAN | Blok "Pengiriman" di halaman kontak tidak ditampilkan |
-| `pesan_whatsapp` | sheet PENGATURAN | Dipakai teks bawaan di `config.js` |
+
+Untuk `cocok_untuk`, pisahkan dengan koma: `Kerudung segi empat, Tunik, Dress`.
+
+**Kolom `tampilkan`.** Isi `YA` agar kain atau warna itu tampil di website. Isi apa pun
+selain itu (misalnya `TIDAK`) untuk menyembunyikannya tanpa perlu menghapus barisnya &mdash;
+berguna saat stok sedang kosong.
 
 **Dua baris yang perlu dicek ulang di sheet KAIN:** `PS1 Modal Viscose (Rayon Nola)` dan
 `PS2 Rayon Spandex` tercatat berkomposisi **Polyester**. Nama kainnya menunjukkan serat
-rayon/viscose, jadi kemungkinan kolom komposisinya belum disesuaikan. Website menampilkan
-apa adanya sesuai sheet — silakan perbaiki di sheet lalu salin ulang bila memang keliru.
+rayon/viscose, jadi kemungkinan kolom komposisinya belum disesuaikan.
 
----
+**Kode kain tidak ditampilkan ke pembeli.** Kolom `kode_kain` tetap dipakai di balik layar
+untuk menghubungkan kain dengan warnanya dan untuk tautan langsung, tetapi tidak muncul di
+kartu maupun halaman detail, dan tidak ikut terkirim dalam pesan WhatsApp.
 
-## 3. Struktur folder
+## 4. Struktur folder
 
 ```
 index.html              Beranda: hero, statistik, keunggulan, kategori, cara pesan, FAQ
@@ -66,12 +132,14 @@ assets/js/config.js     >> DATA TOKO — dari sheet PENGATURAN
 assets/js/produk-data.js>> DATA KAIN & WARNA — dari sheet KAIN + WARNA
 assets/js/main.js       Menu, tautan WhatsApp, animasi
 assets/js/produk.js     Pencarian, filter, dan detail katalog
+assets/js/sheet-sync.js Membaca Google Sheet dan memperbarui isi halaman
+data/WL-TEKS.csv        Isi awal untuk sheet WL — TEKS (diimpor sekali)
 sitemap.xml, robots.txt Untuk mesin pencari
 ```
 
 ---
 
-## 4. Mengubah data toko
+## 5. Mengubah data toko lewat kode (bila sheet dimatikan)
 
 Buka `assets/js/config.js`. Isinya sudah sesuai sheet PENGATURAN per 18 September 2026:
 
@@ -93,7 +161,7 @@ Isi `minOrder` dan `infoOngkir` untuk memunculkan blok ketentuan pembelian di ha
 
 ---
 
-## 5. Menambah atau mengubah kain
+## 6. Menambah atau mengubah kain lewat kode (bila sheet dimatikan)
 
 Buka `assets/js/produk-data.js`, salin satu blok yang sudah ada, lalu ubah isinya:
 
@@ -130,7 +198,7 @@ menampilkan detail kain tersebut. Tautan inilah yang dipakai di dalam artikel.
 
 ---
 
-## 6. Menambah artikel baru
+## 7. Menambah artikel baru
 
 1. Salin salah satu file di folder `blog/` menjadi file baru.
 2. Ubah `<title>`, `<meta name="description">`, judul `<h1>`, daftar isi, dan isinya.
@@ -143,7 +211,7 @@ kebutuhan kain dari yard, memilih lebar kain, memilih bahan gamis, dan merawat k
 
 ---
 
-## 7. Cara tombol WhatsApp bekerja
+## 8. Cara tombol WhatsApp bekerja
 
 Setiap elemen dengan atribut `data-wa` otomatis menjadi tautan WhatsApp ke nomor di
 `config.js`:
@@ -161,7 +229,7 @@ disusun menjadi teks pesan WhatsApp.
 
 ---
 
-## 8. Logo
+## 9. Logo
 
 Website saat ini memakai monogram **WL** yang dibuat dengan CSS, bukan file logo.
 `WL logo.pdf` di Google Drive belum dipakai karena tidak bisa diambil lewat konektor.
@@ -171,7 +239,7 @@ HTML dengan `<img src="assets/img/logo.png" alt="Wahyu Lestari Textile" class="l
 
 ---
 
-## 9. Cara mempublikasikan
+## 10. Cara mempublikasikan
 
 **GitHub Pages** (gratis)
 1. Buka *Settings* → *Pages* pada repositori ini.
@@ -187,7 +255,7 @@ Setelah punya domain, ganti `https://www.namadomainanda.com` di `sitemap.xml` da
 
 ---
 
-## 10. Catatan teknis
+## 11. Catatan teknis
 
 - Tampilan responsif untuk ponsel, tablet, dan desktop; sudah diuji pada lebar 390 px.
 - Huruf dari Google Fonts; bila tidak termuat, tampilan tetap rapi dengan huruf sistem.

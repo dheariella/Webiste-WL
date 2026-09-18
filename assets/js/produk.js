@@ -39,13 +39,16 @@
   }
 
   /* ---------- Isi pilihan filter dari data ---------- */
+  function isiPilihanFilter() {
+  adaGramasi = DATA.some(function (k) { return k.gsm; });
   var kategori = ["Semua"].concat(
     DATA.map(function (k) { return k.kategori; }).filter(function (v, i, a) { return a.indexOf(v) === i; })
   );
+  if (kategori.indexOf(kategoriAktif) === -1) kategoriAktif = "Semua";
   wadahChip.innerHTML = kategori
-    .map(function (k, i) {
+    .map(function (k) {
       var jml = k === "Semua" ? DATA.length : DATA.filter(function (x) { return x.kategori === k; }).length;
-      return '<button type="button" class="chip' + (i === 0 ? " is-active" : "") +
+      return '<button type="button" class="chip' + (k === kategoriAktif ? " is-active" : "") +
              '" data-kategori="' + esc(k) + '">' + esc(k) + ' <span class="chip-count">' + jml + "</span></button>";
     })
     .join("");
@@ -57,10 +60,12 @@
     lebarUnik.map(function (l) { return '<option value="' + l + '">' + l + " cm</option>"; }).join("");
 
   // Filter gramasi hanya ditampilkan bila kolom gramasi di sheet sudah diisi
-  if (!adaGramasi && pilihGramasi) {
+  if (pilihGramasi) {
     var bungkus = pilihGramasi.closest(".field");
-    if (bungkus) bungkus.hidden = true;
+    if (bungkus) bungkus.hidden = !adaGramasi;
   }
+  }
+  isiPilihanFilter();
 
   wadahChip.addEventListener("click", function (e) {
     var chip = e.target.closest(".chip");
@@ -124,7 +129,6 @@
           (k.stok ? '<span class="badge badge--stok">' + esc(k.stok) + "</span>" : "") +
         "</div>" +
         '<div class="kain-body">' +
-          '<span class="kain-kode">' + esc(k.kode) + "</span>" +
           "<h3>" + esc(k.nama) + "</h3>" +
           '<p class="kain-komposisi">' + esc(k.komposisi) + "</p>" +
           '<dl style="margin:0">' +
@@ -136,7 +140,7 @@
           '<div class="kain-actions">' +
             '<button type="button" class="btn btn-outline btn-sm" data-detail="' + k.id + '">Detail</button>' +
             '<a class="btn btn-wa btn-sm" data-wa data-wa-text="Halo WL Textile, saya mau tanya kain ' +
-              esc(k.nama) + " (kode " + esc(k.kode) + '). Boleh minta info stok warna dan harganya?">Pesan</a>' +
+              esc(k.nama) + '. Boleh minta info stok warna dan harganya?">Pesan</a>' +
           "</div>" +
         "</div>" +
       "</article>"
@@ -175,12 +179,11 @@
       '<div class="modal-head" style="background:linear-gradient(135deg,' + w[1] + ',#1b3651)">' +
         '<button type="button" class="modal-close" aria-label="Tutup">&times;</button>' +
         "<h2>" + esc(k.nama) + "</h2>" +
-        "<p>" + esc(k.kode) + " · " + esc(k.kategori) + "</p>" +
+        "<p>" + esc(k.kategori) + " · " + esc(k.lebar) + "</p>" +
       "</div>" +
       '<div class="modal-body">' +
         (k.deskripsi ? "<p>" + esc(k.deskripsi) + "</p>" : "") +
         '<table class="spec-table"><tbody>' +
-          barisTabel("Kode kain", esc(k.kode)) +
           barisTabel("Kategori", esc(k.kategori)) +
           barisTabel("Komposisi", esc(k.komposisi)) +
           barisTabel("Lebar kain", esc(k.lebar)) +
@@ -206,7 +209,7 @@
           ? '<p class="small muted">Harga dapat berubah sewaktu-waktu. Konfirmasi harga terbaru dan ketersediaan stok lewat WhatsApp.</p>'
           : "") +
         '<a class="btn btn-wa btn-block btn-lg" data-wa data-wa-text="Halo WL Textile, saya tertarik dengan ' +
-          esc(k.nama) + " (kode " + esc(k.kode) + ", lebar " + esc(k.lebar) +
+          esc(k.nama) + " (lebar " + esc(k.lebar) +
           '). Boleh minta info stok warna, harga terbaru, dan minimal ordernya?">Pesan ' + esc(k.nama) + "</a>" +
       "</div>";
 
@@ -238,6 +241,12 @@
     el.addEventListener("input", render);
     el.addEventListener("change", render);
   });
+
+  window.renderKatalog = function () {
+    DATA = window.KAIN || DATA;
+    isiPilihanFilter();
+    render();
+  };
 
   render();
 

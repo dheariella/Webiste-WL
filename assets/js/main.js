@@ -25,6 +25,42 @@
   }
   window.pasangTautanWa = pasangTautanWa;
 
+  /* ---------- Penanda angka: {jumlah_kain}, {jumlah_warna}, dst ---------- */
+  function angkaData() {
+    var d = window.KAIN || [];
+    var kategori = {};
+    d.forEach(function (k) { kategori[k.kategori] = 1; });
+    return {
+      jumlah_kain: d.length,
+      jumlah_warna: d.reduce(function (n, k) { return n + ((k.warna || []).length); }, 0),
+      jumlah_kategori: Object.keys(kategori).length,
+      jumlah_sublim: d.filter(function (k) { return /sublim/i.test(k.kategori); }).length
+    };
+  }
+
+  function gantiPenanda(teks) {
+    var a = angkaData();
+    return String(teks).replace(/\{(jumlah_[a-z]+)\}/g, function (cocok, kunci) {
+      return kunci in a ? a[kunci] : cocok;
+    });
+  }
+
+  /* ---------- Terapkan teks dari sheet WL — TEKS ---------- */
+  function terapkanTeks() {
+    var T = window.TEKS || {};
+    document.querySelectorAll("[data-teks]").forEach(function (el) {
+      var isi = T[el.getAttribute("data-teks")];
+      if (typeof isi === "string" && isi !== "") {
+        var baru = gantiPenanda(isi);
+        if (el.innerHTML !== baru) el.innerHTML = baru;
+      } else {
+        // tidak ada di sheet: tetap pakai isi bawaan, tapi ganti penandanya
+        if (el.innerHTML.indexOf("{jumlah_") !== -1) el.innerHTML = gantiPenanda(el.innerHTML);
+      }
+    });
+  }
+  window.terapkanTeks = terapkanTeks;
+
   /* ---------- Isi teks dari config ---------- */
   function isiTeks() {
     document.querySelectorAll("[data-site]").forEach(function (el) {
@@ -125,10 +161,17 @@
     item.forEach(function (el) { io.observe(el); });
   }
 
+  window.isiDataToko = function () {
+    isiTeks();
+    isiJam();
+    isiStats();
+  };
+
   document.addEventListener("DOMContentLoaded", function () {
     isiTeks();
     isiJam();
     isiStats();
+    terapkanTeks();
     pasangTautanWa(document);
     menuMobile();
     tandaiMenuAktif();
