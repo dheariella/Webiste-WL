@@ -36,16 +36,28 @@ ubah dari *Restricted* menjadi **Anyone with the link**, peran **Viewer** → Do
 
 Selama ini belum dilakukan, website tetap jalan normal memakai salinan datanya.
 
-**2. Isi sheet `WL — TEKS`.** Sheet itu sudah dibuatkan tetapi masih kosong. Isinya:
+**2. Isi sheet `WL — TEKS`.** Sheet itu sudah dibuatkan tetapi masih kosong.
+
+Prosesnya **dimulai dari dalam sheet**, bukan dengan menyeret berkas ke folder Google Drive.
+Menyeret berkas ke Drive hanya menaruh berkas CSV di sana dan tidak mengisi sheet apa pun.
 
 1. Unduh berkas [`data/WL-TEKS.csv`](data/WL-TEKS.csv) dari repositori ini
    (klik berkasnya → tombol **Download raw file**).
-2. Buka sheet `WL — TEKS` di Drive.
-3. Menu **File → Import → Upload**, pilih berkas tadi.
-4. Pada *Import location* pilih **Replace current sheet**, lalu **Import data**.
+2. Buka sheet `WL — TEKS` di Google Sheets.
+3. Menu **File → Import**.
+4. Muncul jendela dengan beberapa tab: *My Drive · Shared with me · Shared drives · Recent ·
+   Upload*. Pilih tab **Upload** lalu seret berkas yang baru diunduh.
+   Bila berkasnya sudah terlanjur ada di Google Drive, pilih tab **My Drive** atau **Recent**
+   lalu klik berkas `WL-TEKS.csv` → **Select**.
+5. Barulah muncul pilihan *Import location*. Pilih **Replace current sheet** → **Import data**.
 
 Setelah itu sheet berisi 151 baris: setiap baris adalah satu potongan tulisan di website,
 lengkap dengan teks yang sekarang tampil.
+
+Cara ini dipakai supaya ID sheet-nya tidak berubah, sehingga alamat di `config.js` tetap
+cocok. Bila Anda memilih jalan pintas (klik kanan CSV di Drive → **Open with → Google
+Sheets**), Google membuat sheet **baru** dengan ID berbeda — alamat `teks` pada bagian
+`sheet` di `assets/js/config.js` harus diganti dengan ID sheet yang baru itu.
 
 **3. Matikan bila perlu.** Bila suatu saat ingin memutus sambungan, buka
 `assets/js/config.js` dan ubah `aktif: true` menjadi `aktif: false` pada bagian `sheet`.
