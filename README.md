@@ -231,13 +231,21 @@ disusun menjadi teks pesan WhatsApp.
 
 ## 9. Logo
 
-Website saat ini memakai monogram **WL** yang dibuat dengan CSS, bukan file logo.
-`WL logo.pdf` di Google Drive belum dipakai karena tidak bisa diambil lewat konektor.
-Untuk memakainya: ekspor logo menjadi PNG atau SVG berlatar transparan, simpan sebagai
-`assets/img/logo.png`, lalu ganti bagian `<span class="logo-mark">WL</span>` di setiap file
-HTML dengan `<img src="assets/img/logo.png" alt="Wahyu Lestari Textile" class="logo-mark">`.
+Logo asli (`WL logo.pdf` di akar repositori) sudah dipakai di website. Berkas PDF-nya vektor
+murni, jadi bisa diubah menjadi SVG tanpa kehilangan ketajaman:
 
----
+| Berkas | Dipakai di | Keterangan |
+|---|---|---|
+| `assets/img/logo.svg` | cadangan / bahan promosi | Logo penuh, kotak 1080&times;1080 dengan latar warna merek |
+| `assets/img/logo-mark.svg` | header dan footer | Monogram WL saja, putih, latar transparan |
+| `assets/img/favicon.svg` | ikon tab browser | Monogram di atas kotak membulat warna merek |
+
+Warna merek dari logo, **#002F3D**, kini dipakai sebagai warna utama website
+(`--navy-900` di `assets/css/style.css`). Seluruh bagian gelap &mdash; hero, footer, tombol
+utama &mdash; mengikuti warna ini.
+
+Bila logo diganti di kemudian hari, timpa ketiga berkas SVG di atas dengan versi baru
+memakai nama berkas yang sama; tidak ada bagian lain yang perlu disunting.
 
 ## 10. Cara mempublikasikan
 

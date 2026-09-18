@@ -7,10 +7,10 @@
 
 /* ---------- 1. Token ---------- */
 :root {
-  --navy-900: #0d1b2a;
-  --navy-800: #13273c;
-  --navy-700: #1b3651;
-  --navy-600: #24496f;
+  --navy-900: #002f3d;   /* warna merek, diambil dari logo */
+  --navy-800: #063c4c;
+  --navy-700: #0d4a5e;
+  --navy-600: #175e75;
   --ink: #16202b;
   --ink-soft: #4a5866;
   --ink-mute: #70808f;
@@ -30,9 +30,9 @@
   --radius: 14px;
   --radius-lg: 22px;
 
-  --shadow-sm: 0 1px 2px rgba(13, 27, 42, .06), 0 2px 8px rgba(13, 27, 42, .05);
-  --shadow: 0 10px 30px rgba(13, 27, 42, .08);
-  --shadow-lg: 0 24px 60px rgba(13, 27, 42, .14);
+  --shadow-sm: 0 1px 2px rgba(0, 47, 61, .06), 0 2px 8px rgba(0, 47, 61, .05);
+  --shadow: 0 10px 30px rgba(0, 47, 61, .08);
+  --shadow-lg: 0 24px 60px rgba(0, 47, 61, .14);
 
   --container: 1140px;
   --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -128,10 +128,11 @@ p { margin: 0 0 1.1em; }
 .logo-mark {
   width: 38px; height: 38px; flex: none;
   border-radius: 10px;
-  background: linear-gradient(135deg, var(--navy-800), var(--navy-600));
-  display: grid; place-items: center;
-  color: #fff; font-family: var(--font-serif); font-weight: 700; font-size: 1.05rem;
+  background: var(--navy-900);
+  padding: 6px 5px;
   box-shadow: var(--shadow-sm);
+  display: block;
+  object-fit: contain;
 }
 .logo-text { display: flex; flex-direction: column; line-height: 1.15; }
 .logo-text strong { font-family: var(--font-serif); font-size: 1.12rem; color: var(--navy-900); }
@@ -387,7 +388,7 @@ p { margin: 0 0 1.1em; }
   justify-content: center;
   padding: 24px;
   overflow-y: auto;
-  background: rgba(13, 27, 42, .58);
+  background: rgba(0, 47, 61, .58);
   backdrop-filter: blur(3px);
 }
 .modal.is-open { display: flex; }
