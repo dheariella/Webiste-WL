@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pemeriksa Sambungan Google Sheet</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .cek-tabel { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-sm); }
+  .cek-tabel th, .cek-tabel td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--line); font-size: .95rem; vertical-align: top; }
+  .cek-tabel th { background: var(--cream-2); font-family: var(--font-sans); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); }
+  .cek-tabel tr:last-child td { border-bottom: 0; }
+  .lampu { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; white-space: nowrap; }
+  .lampu::before { content: ""; width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .ok::before { background: #2f9e5f; }    .ok { color: #237a48; }
+  .gagal::before { background: #c74b3a; } .gagal { color: #a8392a; }
+  .tunggu::before { background: #c9a227; } .tunggu { color: #8a6f12; }
+  .rincian { font-size: .86rem; color: var(--ink-soft); margin-top: 4px; }
+  code { background: var(--cream-2); padding: 2px 6px; border-radius: 5px; font-size: .86em; }
+</style>
+</head>
+<body>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="eyebrow">Alat bantu</span>
+    <h1>Pemeriksa sambungan Google Sheet</h1>
+    <p>Halaman ini memeriksa apakah website berhasil membaca keempat Google Sheet Anda.
+       Buka halaman ini kapan saja untuk memastikan sambungannya masih sehat.
+       Halaman ini tidak muncul di menu dan tidak diindeks mesin pencari.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="max-width:920px">
+    <table class="cek-tabel">
+      <thead>
+        <tr><th style="width:26%">Sheet</th><th style="width:22%">Status</th><th>Keterangan</th></tr>
+      </thead>
+      <tbody id="hasil"></tbody>
+    </table>
+
+    <div id="ringkasan" style="margin-top:28px"></div>
+
+    <div class="note-box" style="margin-top:28px">
+      <p style="margin:0 0 10px"><strong>Kalau statusnya merah:</strong></p>
+      <ol style="margin:0;padding-left:20px">
+        <li style="margin-bottom:6px">Buka sheet yang bersangkutan di Google Sheets.</li>
+        <li style="margin-bottom:6px">Klik tombol <strong>Share</strong> di kanan atas.</li>
+        <li style="margin-bottom:6px">Pada bagian <em>General access</em>, ubah dari <strong>Restricted</strong> menjadi <strong>Anyone with the link</strong>, dengan peran <strong>Viewer</strong>.</li>
+        <li>Klik <strong>Done</strong>, lalu muat ulang halaman ini.</li>
+      </ol>
+      <p class="small" style="margin:12px 0 0">Selama statusnya merah, website tetap tampil normal memakai salinan data yang tersimpan di dalamnya &mdash; tidak ada yang rusak.</p>
+    </div>
+
+    <p style="margin-top:26px"><a class="btn btn-outline" href="index.html">&larr; Kembali ke beranda</a></p>
+  </div>
+</section>
+
+<script src="assets/js/config.js"></script>
+<script>
+(function () {
+  var CFG = (window.SITE && window.SITE.sheet) || {};
+  var DAFTAR = [
+    { kunci: "kain",       nama: "WL &mdash; KAIN",       kolom: ["kode_kain", "nama_kain", "harga_yard"] },
+    { kunci: "warna",      nama: "WL &mdash; WARNA",      kolom: ["kode_kain", "nama_warna"] },
+    { kunci: "pengaturan", nama: "WL &mdash; PENGATURAN", kolom: ["item", "isi"] },
+    { kunci: "teks",       nama: "WL &mdash; TEKS",       kolom: ["kunci", "isi"] }
+  ];
+  var tbody = document.getElementById("hasil");
+  var jumlahOk = 0, selesai = 0;
+
+  function baris(nama, kelas, label, rincian) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td><strong>" + nama + "</strong></td>" +
+                   '<td><span class="lampu ' + kelas + '">' + label + "</span></td>" +
+                   "<td>" + rincian + "</td>";
+    tbody.appendChild(tr);
+  }
+
+  function pecahCsv(csv) {
+    var b = [], sel = [], isi = "", kutip = false;
+    for (var i = 0; i < csv.length; i++) {
+      var c = csv[i];
+      if (kutip) { if (c === '"') { if (csv[i+1] === '"') { isi += '"'; i++; } else kutip = false; } else isi += c; }
+      else if (c === '"') kutip = true;
+      else if (c === ",") { sel.push(isi); isi = ""; }
+      else if (c === "\n") { sel.push(isi); b.push(sel); sel = []; isi = ""; }
+      else if (c !== "\r") isi += c;
+    }
+    if (isi !== "" || sel.length) { sel.push(isi); b.push(sel); }
+    return b.filter(function (r) { return r.some(function (s) { return s.trim() !== ""; }); });
+  }
+
+  function ringkas() {
+    if (selesai < DAFTAR.length) return;
+    var r = document.getElementById("ringkasan");
+    if (jumlahOk === DAFTAR.length) {
+      r.innerHTML = '<div class="note-box" style="border-color:#9ed3b4;background:#f0faf4">' +
+        '<p style="margin:0"><strong>Sambungan sehat.</strong> Keempat sheet terbaca. ' +
+        'Perubahan yang Anda simpan di sheet akan muncul di website dalam sekitar 5 menit ' +
+        '&mdash; muat ulang halaman dengan Ctrl+Shift+R (atau Cmd+Shift+R di Mac) bila ingin memaksa segar.</p></div>';
+    } else {
+      r.innerHTML = '<div class="note-box" style="border-color:#e7b3a9;background:#fdf3f1">' +
+        "<p style=\"margin:0\"><strong>" + (DAFTAR.length - jumlahOk) + " sheet belum terbaca.</strong> " +
+        "Ikuti langkah di bawah untuk sheet yang statusnya merah.</p></div>";
+    }
+  }
+
+  if (!CFG.aktif) {
+    baris("Sambungan sheet", "gagal", "Dimatikan",
+      "Bagian <code>sheet.aktif</code> di <code>assets/js/config.js</code> bernilai <code>false</code>. Website memakai salinan data di dalamnya.");
+    document.getElementById("ringkasan").innerHTML = "";
+    return;
+  }
+
+  DAFTAR.forEach(function (s) {
+    var url = CFG[s.kunci];
+    if (!url) {
+      baris(s.nama, "gagal", "Alamat kosong", "Alamat sheet ini belum diisi di <code>config.js</code>.");
+      selesai++; ringkas(); return;
+    }
+    var mulai = Date.now();
+    fetch(url, { cache: "no-store" })
+      .then(function (r) {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.text();
+      })
+      .then(function (teks) {
+        var b = pecahCsv(teks);
+        if (!b.length) throw new Error("isi kosong");
+        var kepala = b[0].map(function (h) { return h.trim().toLowerCase(); });
+        var hilang = s.kolom.filter(function (k) { return kepala.indexOf(k) === -1; });
+        var waktu = Date.now() - mulai;
+        if (hilang.length) {
+          baris(s.nama, "tunggu", "Kolom tidak cocok",
+            "Sheet terbaca (" + (b.length - 1) + " baris), tetapi kolom berikut tidak ditemukan: <code>" +
+            hilang.join("</code>, <code>") + "</code>.<div class=\"rincian\">Pastikan baris pertama sheet berisi nama kolom yang benar.</div>");
+        } else {
+          jumlahOk++;
+          baris(s.nama, "ok", "Terbaca",
+            "<strong>" + (b.length - 1) + " baris</strong> terbaca dalam " + waktu + " ms." +
+            '<div class="rincian">Kolom: ' + kepala.filter(Boolean).join(", ") + "</div>");
+        }
+      })
+      .catch(function (e) {
+        baris(s.nama, "gagal", "Tidak terbaca",
+          "Sheet ini belum bisa dibaca website. Biasanya karena belum dibagikan." +
+          '<div class="rincian">Pesan teknis: ' + e.message + "</div>");
+      })
+      .then(function () { selesai++; ringkas(); });
+  });
+})();
+</script>
+</body>
+</html>

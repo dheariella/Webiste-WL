@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /cek-sheet.html
 
 Sitemap: https://www.namadomainanda.com/sitemap.xml

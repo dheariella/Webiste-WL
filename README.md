@@ -64,6 +64,34 @@ Sheets**), Google membuat sheet **baru** dengan ID berbeda — alamat `teks` pad
 
 ---
 
+### Memastikan sambungannya jalan
+
+Buka **`cek-sheet.html`** di website Anda (misalnya
+`https://dheariella.github.io/Webiste-WL/cek-sheet.html`). Halaman itu mencoba membaca
+keempat sheet dan melaporkan hasilnya satu per satu:
+
+| Lampu | Artinya |
+|---|---|
+| Hijau &mdash; *Terbaca* | Sheet berhasil dibaca, beserta jumlah barisnya |
+| Merah &mdash; *Tidak terbaca* | Biasanya sheet belum dibagikan |
+| Kuning &mdash; *Kolom tidak cocok* | Sheet terbaca, tetapi nama kolom di baris pertama berubah |
+
+Halaman ini tidak muncul di menu dan sudah dikecualikan dari mesin pencari lewat `robots.txt`,
+jadi aman dibiarkan ada.
+
+### Setelah selesai mengedit sheet
+
+Tidak ada tombol yang perlu ditekan. Google Sheets menyimpan sendiri, lalu:
+
+1. Tunggu sekitar 5 menit.
+2. Muat ulang halaman website dengan **Ctrl+Shift+R** (Windows) atau **Cmd+Shift+R** (Mac)
+   agar browser mengambil versi terbaru, bukan yang tersimpan sementara.
+
+Bila setelah 10 menit belum berubah, buka `cek-sheet.html` untuk melihat sheet mana yang
+bermasalah.
+
+---
+
 ## 2. Mengubah tulisan di website
 
 Semua lewat sheet **`WL — TEKS`**. Aturannya:
@@ -138,6 +166,7 @@ produk.html             Katalog 33 kain: cari, filter kategori & lebar, urutkan,
 blog.html               Daftar artikel
 kontak.html             Alamat, jam buka, formulir penyusun pesan WhatsApp
 404.html                Halaman tidak ditemukan
+cek-sheet.html          Alat pemeriksa sambungan Google Sheet (tidak masuk menu)
 blog/                   Isi artikel (6 artikel)
 assets/css/style.css    Seluruh tampilan
 assets/js/config.js     >> DATA TOKO — dari sheet PENGATURAN
