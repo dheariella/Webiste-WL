@@ -1,11 +1,13 @@
-# Menerbitkan website ke GitHub Pages setiap kali ada perubahan.
+# Menerbitkan website ke GitHub Pages.
 #
-# Langkah configure-pages dijalankan dengan enablement: true sehingga
-# alur kerja ini menyalakan GitHub Pages sendiri bila belum menyala.
+# GitHub Pages di repositori ini memakai sumber "Deploy from a branch"
+# dengan branch gh-pages, yang menyala sendiri saat branch itu pertama
+# kali dibuat. Alur kerja ini menjaga branch gh-pages tetap sama dengan
+# branch kerja, sehingga setiap perubahan langsung tayang.
 #
-# Catatan: pada akun GitHub Free, Pages hanya tersedia untuk repositori
-# publik. Selama repositori masih privat, penyalaan itu ditolak GitHub
-# dengan pesan "Resource not accessible by integration".
+# Cara ini dipakai karena menyalakan Pages lewat actions/configure-pages
+# ditolak GitHub: token bawaan GitHub Actions tidak berwenang membuat
+# situs Pages baru.
 name: Terbitkan website
 
 on:
@@ -14,34 +16,33 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: terbitkan
   cancel-in-progress: false
 
 jobs:
   terbitkan:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.terbit.outputs.page_url }}
     steps:
       - name: Ambil berkas
         uses: actions/checkout@v4
 
-      - name: Siapkan GitHub Pages
-        uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Salin ke branch gh-pages
+        run: |
+          set -e
+          touch .nojekyll
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B gh-pages
+          git add -A
+          git commit -m "Terbitkan ${GITHUB_SHA::7}" || echo "Tidak ada perubahan untuk diterbitkan."
+          git push --force origin gh-pages
 
-      - name: Kemas seluruh isi folder
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-
-      - name: Terbitkan
-        id: terbit
-        uses: actions/deploy-pages@v4
+      - name: Alamat website
+        run: |
+          echo "### Website sudah diperbarui" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Beranda: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" >> $GITHUB_STEP_SUMMARY
+          echo "- Editor: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/editor.html" >> $GITHUB_STEP_SUMMARY
