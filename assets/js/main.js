@@ -48,6 +48,45 @@
     });
   }
 
+  /* ---------- Gambar ---------- */
+  /* Mengubah tautan Google Drive menjadi alamat gambar yang bisa ditampilkan
+     langsung, sekaligus membiarkan alamat biasa dan berkas lokal apa adanya. */
+  function alamatGambar(nilai) {
+    var v = String(nilai || "").trim();
+    if (!v) return "";
+    var m = v.match(/drive\.google\.com\/file\/d\/([-\w]{20,})/) ||
+            v.match(/drive\.google\.com\/(?:open|uc)\?(?:[^#]*&)?id=([-\w]{20,})/) ||
+            v.match(/drive\.google\.com\/thumbnail\?(?:[^#]*&)?id=([-\w]{20,})/);
+    if (m) return "https://drive.google.com/thumbnail?id=" + m[1] + "&sz=w1600";
+    return v;
+  }
+  window.alamatGambar = alamatGambar;
+
+  function terapkanGambar() {
+    var T = window.TEKS || {};
+    document.querySelectorAll("[data-gambar]").forEach(function (slot) {
+      var kunci = slot.getAttribute("data-gambar");
+      var alamat = alamatGambar(T[kunci]);
+      var img = slot.querySelector(":scope > img.gambar-isi");
+      if (!alamat) {
+        if (img) img.remove();
+        slot.classList.remove("ada-gambar");
+        return;
+      }
+      if (!img) {
+        img = document.createElement("img");
+        img.className = "gambar-isi";
+        img.loading = "lazy";
+        img.decoding = "async";
+        img.alt = slot.getAttribute("data-gambar-alt") || "";
+        slot.insertBefore(img, slot.firstChild);
+      }
+      if (img.getAttribute("src") !== alamat) img.setAttribute("src", alamat);
+      slot.classList.add("ada-gambar");
+    });
+  }
+  window.terapkanGambar = terapkanGambar;
+
   /* ---------- Terapkan tampilan khusus dari sheet (kunci berawalan _) ---------- */
   function terapkanTampilan() {
     var T = window.TEKS || {};
@@ -116,6 +155,9 @@
   window.terapkanTeks = function () {
     terapkanTeks();
     terapkanTampilan();
+    terapkanGambar();
+    terapkanGambar();
+    if (window.terapkanAnimasi) window.terapkanAnimasi();
   };
 
   /* ---------- Isi teks dari config ---------- */
@@ -230,6 +272,7 @@
     isiStats();
     terapkanTeks();
     terapkanTampilan();
+    terapkanGambar();
     pasangTautanWa(document);
     menuMobile();
     tandaiMenuAktif();

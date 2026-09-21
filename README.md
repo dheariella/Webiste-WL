@@ -87,6 +87,24 @@ layar kecil, dan **Daftar tulisan** untuk membuka atau menutup daftar di kanan (
 untuk mencari tulisan yang letaknya jauh &mdash; klik barisnya, editor akan menggulir ke
 tulisannya dan langsung menyiapkannya untuk diketik).
 
+**Mengganti gambar.** Arahkan kursor ke area gambar (foto hero atau gambar tiap kategori di
+beranda), lalu klik tombol **Tambah/Ganti gambar**. Ada dua cara mengisinya:
+
+- **Tempel tautan.** Bisa tautan Google Drive apa adanya (asalkan berkasnya sudah dibagikan
+  *Anyone with the link*) &mdash; alamatnya otomatis diubah menjadi alamat gambar langsung.
+  Bisa juga alamat gambar biasa, atau berkas di repositori seperti `assets/img/kain-voal.jpg`.
+- **Pilih dari komputer.** Ini hanya untuk melihat hasilnya lebih dulu; gambarnya tersimpan di
+  browser saja dan **tidak ikut terekspor ke CSV**. Supaya benar-benar tayang, unggah berkasnya
+  ke folder `assets/img` di GitHub lalu tulis namanya, atau unggah ke Drive lalu tempel tautannya.
+
+Selama slot gambar dibiarkan kosong, yang tampil adalah gradasi warna seperti sekarang &mdash;
+jadi website tetap rapi walaupun belum ada satu foto pun.
+
+**Mengatur animasi.** Dua pilihan di bilah atas: **Animasi** (Nyala/Mati) dan kecepatannya
+(Lambat/Sedang/Cepat). Mematikan animasi membuat seluruh isi langsung tampil tanpa gerak.
+Pengunjung yang mengaktifkan pengaturan "kurangi gerak" di perangkatnya otomatis mendapat
+tampilan tanpa animasi, apa pun pilihan di sini.
+
 **Menyimpan hasilnya.** Tekan **Unduh CSV**, lalu impor berkasnya ke sheet `WL — TEKS`
 (File &rarr; Import &rarr; pilih berkasnya &rarr; **Replace current sheet**).
 
@@ -119,6 +137,10 @@ ini boleh diubah langsung di sheet bila perlu:
 | `_warna_aksen` | Kode warna aksen, mis. `#c2703d` |
 | `_sembunyi` | Daftar bagian yang disembunyikan, mis. `index-3,index-7` |
 | `_urutan` | Urutan bagian pada halaman, mis. `index-4,index-2,index-3` |
+| `_animasi` | `nyala` atau `mati` |
+| `_animasi_kecepatan` | `lambat`, `sedang`, atau `cepat` |
+| `_gambar_hero` | Tautan foto latar hero beranda |
+| `_gambar_kat_1` … `_gambar_kat_6` | Tautan foto tiap kartu kategori di beranda |
 
 Penanda bagian seperti `index-3` diberikan berurutan sesuai letaknya di halaman. Bila
 kelak ada bagian baru yang disisipkan, penomorannya bergeser &mdash; jadi periksa lagi
@@ -230,10 +252,12 @@ cek-sheet.html          Alat pemeriksa sambungan Google Sheet (tidak masuk menu)
 editor.html             Editor tulisan dengan pratinjau langsung (tidak masuk menu)
 blog/                   Isi artikel (6 artikel)
 assets/css/style.css    Seluruh tampilan
+assets/css/anim.css     Animasi dan gerak
 assets/js/config.js     >> DATA TOKO — dari sheet PENGATURAN
 assets/js/produk-data.js>> DATA KAIN & WARNA — dari sheet KAIN + WARNA
 assets/js/main.js       Menu, tautan WhatsApp, animasi
 assets/js/produk.js     Pencarian, filter, dan detail katalog
+assets/js/anim.js       Menyalakan animasi dan menghitung angka statistik
 assets/js/sheet-sync.js Membaca Google Sheet dan memperbarui isi halaman
 data/WL-TEKS.csv        Isi awal untuk sheet WL — TEKS (diimpor sekali)
 sitemap.xml, robots.txt Untuk mesin pencari
@@ -365,7 +389,34 @@ Setelah punya domain, ganti `https://www.namadomainanda.com` di `sitemap.xml` da
 
 ---
 
-## 11. Catatan teknis
+## 11. Animasi di halaman utama
+
+Beranda dibuat sebagai landing page yang bergerak. Semua gerak diatur lewat
+`assets/css/anim.css` dan `assets/js/anim.js`, dan bisa dimatikan sepenuhnya dari editor.
+
+| Gerak | Di mana |
+|---|---|
+| Tulisan hero masuk bertahap | Bagian atas beranda |
+| Contoh kain melayang pelan dengan kilau melintas | Kotak warna di hero |
+| Deretan nama kain berjalan | Pita di bawah hero (berhenti saat disentuh kursor) |
+| Angka statistik menghitung naik | Baris statistik, saat tergulir ke layar |
+| Kartu muncul bertahap saat digulir | Kartu keunggulan, kategori, pelanggan, artikel |
+| Kartu terangkat dan disorot mengikuti kursor | Kartu kategori dan artikel |
+| Kilau berjalan pada tombol WhatsApp | Semua tombol WhatsApp |
+
+Untuk menambahkan gerak pada elemen baru, cukup beri atributnya:
+
+```html
+<div data-anim="naik" data-anim-tunda="70">…</div>
+```
+
+Pilihan `data-anim`: `naik`, `turun`, `kiri`, `kanan`, `zoom`, `masuk`.
+`data-anim-tunda` diisi angka milidetik untuk membuat efek bertahap.
+Untuk angka yang menghitung naik, tambahkan `data-hitung` pada elemen berisi angkanya.
+
+---
+
+## 12. Catatan teknis
 
 - Tampilan responsif untuk ponsel, tablet, dan desktop; sudah diuji pada lebar 390 px.
 - Huruf dari Google Fonts; bila tidak termuat, tampilan tetap rapi dengan huruf sistem.

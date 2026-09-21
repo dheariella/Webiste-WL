@@ -41,7 +41,12 @@
     '  padding:7px 11px;border-radius:999px;cursor:pointer;white-space:nowrap}',
     '#alatBagian button:hover{background:rgba(255,255,255,.18)}',
     '#alatBagian button[disabled]{opacity:.35;cursor:default}',
-    '#alatBagian .pisah{width:1px;background:rgba(255,255,255,.25);margin:4px 2px}'
+    '#alatBagian .pisah{width:1px;background:rgba(255,255,255,.25);margin:4px 2px}',
+    '#alatGambar{position:absolute;z-index:51;display:none;align-items:center;gap:6px;',
+    '  background:#c2703d;color:#fff;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;',
+    '  font:700 12px/1 system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,47,61,.35)}',
+    '#alatGambar.tampil{display:inline-flex}',
+    '[data-gambar].gambar-lewat{outline:3px solid #c2703d;outline-offset:-3px}'
   ].join("");
   document.documentElement.appendChild(gaya);
 
@@ -55,6 +60,37 @@
     '<button type="button" data-aksi="sembunyi">Sembunyikan</button>';
   document.body.appendChild(alat);
   var bagianTersorot = null;
+
+  var alatGambar = document.createElement("button");
+  alatGambar.id = "alatGambar";
+  alatGambar.type = "button";
+  alatGambar.textContent = "Ganti gambar";
+  document.body.appendChild(alatGambar);
+  var slotTersorot = null;
+
+  function tempatkanAlatGambar(slot) {
+    var r = slot.getBoundingClientRect();
+    alatGambar.style.top = (window.scrollY + r.top + 12) + "px";
+    alatGambar.style.left = (window.scrollX + r.left + 12) + "px";
+  }
+
+  function sorotSlot(slot) {
+    if (slotTersorot === slot) return;
+    if (slotTersorot) slotTersorot.classList.remove("gambar-lewat");
+    slotTersorot = slot;
+    if (!slot) { alatGambar.classList.remove("tampil"); return; }
+    slot.classList.add("gambar-lewat");
+    alatGambar.textContent = slot.classList.contains("ada-gambar") ? "Ganti gambar" : "Tambah gambar";
+    alatGambar.classList.add("tampil");
+    tempatkanAlatGambar(slot);
+  }
+
+  alatGambar.addEventListener("click", function (e) {
+    e.preventDefault();
+    if (!slotTersorot) return;
+    parent.postMessage({ dari: "pratinjau", jenis: "gambar",
+                         kunci: slotTersorot.getAttribute("data-gambar") }, ASAL);
+  });
 
   function tempatkanAlat(sec) {
     var r = sec.getBoundingClientRect();
@@ -79,9 +115,18 @@
     if (alat.contains(e.target)) return;
     var sec = e.target.closest && e.target.closest("[data-bagian]");
     sorotBagian(sec || null);
+    if (alatGambar.contains(e.target)) return;
+    var slot = e.target.closest && e.target.closest("[data-gambar]");
+    sorotSlot(slot || null);
   });
-  window.addEventListener("scroll", function () { if (bagianTersorot) tempatkanAlat(bagianTersorot); }, { passive: true });
-  window.addEventListener("resize", function () { if (bagianTersorot) tempatkanAlat(bagianTersorot); });
+  window.addEventListener("scroll", function () {
+    if (bagianTersorot) tempatkanAlat(bagianTersorot);
+    if (slotTersorot) tempatkanAlatGambar(slotTersorot);
+  }, { passive: true });
+  window.addEventListener("resize", function () {
+    if (bagianTersorot) tempatkanAlat(bagianTersorot);
+    if (slotTersorot) tempatkanAlatGambar(slotTersorot);
+  });
 
   alat.addEventListener("click", function (e) {
     var b = e.target.closest("button");
@@ -173,7 +218,7 @@
   }, true);
 
   document.addEventListener("click", function (e) {
-    if (alat.contains(e.target)) return;
+    if (alat.contains(e.target) || alatGambar.contains(e.target)) return;
     var sasaran = e.target.closest && e.target.closest("[data-teks]");
     if (sasaran) {
       e.preventDefault();
@@ -258,11 +303,14 @@
     var kunci = [].map.call(document.querySelectorAll("[data-teks]"), function (el) {
       return el.getAttribute("data-teks");
     });
+    var gambar = [].map.call(document.querySelectorAll("[data-gambar]"), function (el) {
+      return el.getAttribute("data-gambar");
+    });
     var bagian = [].map.call(document.querySelectorAll("[data-bagian]"), function (el) {
       var j = el.querySelector("h1, h2, h3");
       return { nama: el.getAttribute("data-bagian"), judul: j ? j.textContent.trim().slice(0, 44) : "Bagian" };
     });
-    parent.postMessage({ dari: "pratinjau", jenis: "siap", kunci: kunci, bagian: bagian }, ASAL);
+    parent.postMessage({ dari: "pratinjau", jenis: "siap", kunci: kunci, bagian: bagian, gambar: gambar }, ASAL);
   }
 
   if (document.readyState === "loading") {

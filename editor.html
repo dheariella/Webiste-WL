@@ -98,6 +98,21 @@
   #tombolPanel[aria-expanded="false"] { opacity: .6; }
   .baris { font-size: .87rem; line-height: 1.45; color: var(--ink); }
 
+  #dialogGambar { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center;
+    padding: 20px; background: rgba(0,47,61,.55); backdrop-filter: blur(3px); }
+  #dialogGambar[hidden] { display: none; }
+  .dialog-kotak { background: #fff; border-radius: 16px; padding: 24px 26px; width: min(560px, 100%);
+    box-shadow: 0 24px 60px rgba(0,47,61,.3); }
+  .dialog-kotak h2 { margin: 0 0 6px; font-size: 1.15rem; }
+  .dialog-ket { margin: 0 0 16px; font-size: .88rem; color: var(--ink-soft); line-height: 1.55; }
+  .dialog-label { display: block; font-size: .74rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--ink-mute); margin-bottom: 6px; }
+  #gambarAlamat { width: 100%; }
+  .dialog-kaki { display: flex; align-items: center; gap: 9px; margin-top: 16px; flex-wrap: wrap; }
+  .dialog-awas { margin: 16px 0 0; font-size: .82rem; line-height: 1.6; color: var(--ink-soft);
+    background: var(--terra-soft); border-radius: 10px; padding: 12px 14px; }
+  .dialog-awas code { background: rgba(255,255,255,.75); padding: 1px 5px; border-radius: 4px; }
+
   @media (max-width: 1100px) {
     body { overflow: auto; }
     .isi { flex-direction: column; }
@@ -123,6 +138,19 @@
     <label for="warnaUtama">Warna</label>
     <input type="color" id="warnaUtama" title="Warna utama (hero, footer, tombol)">
     <input type="color" id="warnaAksen" title="Warna aksen (harga, tautan, sorotan)">
+  </span>
+
+  <span class="kelompok">
+    <label for="pilihAnimasi">Animasi</label>
+    <select id="pilihAnimasi" title="Nyalakan atau matikan seluruh gerak">
+      <option value="nyala">Nyala</option>
+      <option value="mati">Mati</option>
+    </select>
+    <select id="pilihKecepatan" title="Kecepatan gerak" style="margin-left:5px">
+      <option value="lambat">Lambat</option>
+      <option value="sedang">Sedang</option>
+      <option value="cepat">Cepat</option>
+    </select>
   </span>
 
   <span class="pisah"></span>
@@ -156,6 +184,35 @@
       lalu mengimpornya ke Google Sheet.</p>
     </div>
   </aside>
+</div>
+
+<div id="dialogGambar" hidden>
+  <div class="dialog-kotak" role="dialog" aria-modal="true" aria-label="Ganti gambar">
+    <h2>Gambar</h2>
+    <p class="dialog-ket">Tempelkan tautan gambar, atau pilih berkas dari komputer untuk melihat
+       hasilnya lebih dulu. Tautan Google Drive boleh ditempel apa adanya &mdash; asalkan berkasnya
+       sudah dibagikan <em>Anyone with the link</em>.</p>
+
+    <label class="dialog-label" for="gambarAlamat">Tautan gambar</label>
+    <input type="url" id="gambarAlamat" placeholder="https://drive.google.com/file/d/… atau assets/img/kain.jpg">
+
+    <div class="dialog-kaki">
+      <label class="tombol tombol-halus" style="cursor:pointer">
+        Pilih dari komputer
+        <input type="file" id="gambarBerkas" accept="image/*" hidden>
+      </label>
+      <button type="button" class="tombol tombol-halus" id="gambarHapus" hidden>Hapus gambar</button>
+      <span style="flex:1"></span>
+      <button type="button" class="tombol tombol-utama" id="gambarTutup">Selesai</button>
+    </div>
+
+    <p class="dialog-awas" id="gambarPeringatan" hidden>
+      <strong>Baru pratinjau.</strong> Gambar dari komputer hanya tampil di browser ini dan tidak ikut
+      terekspor ke CSV. Supaya benar-benar tayang: unggah berkasnya ke folder
+      <code>assets/img</code> di GitHub, lalu tulis namanya di kolom tautan, misalnya
+      <code>assets/img/kain-voal.jpg</code>. Atau unggah ke Google Drive, bagikan, lalu tempel tautannya.
+    </p>
+  </div>
 </div>
 
 <script src="assets/js/csv.js"></script>

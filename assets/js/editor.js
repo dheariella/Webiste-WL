@@ -13,9 +13,14 @@
     _warna_utama: { halaman: "Tampilan", bagian: "Warna", label: "Warna utama" },
     _warna_aksen: { halaman: "Tampilan", bagian: "Warna", label: "Warna aksen" },
     _sembunyi:    { halaman: "Tampilan", bagian: "Bagian", label: "Bagian disembunyikan" },
-    _urutan:      { halaman: "Tampilan", bagian: "Bagian", label: "Urutan bagian" }
+    _urutan:      { halaman: "Tampilan", bagian: "Bagian", label: "Urutan bagian" },
+    _animasi:     { halaman: "Tampilan", bagian: "Animasi", label: "Animasi nyala/mati" },
+    _animasi_kecepatan: { halaman: "Tampilan", bagian: "Animasi", label: "Kecepatan animasi" }
   };
-  var WARNA_BAWAAN = { _warna_utama: "#002f3d", _warna_aksen: "#c2703d" };
+  var WARNA_BAWAAN = {
+    _warna_utama: "#002f3d", _warna_aksen: "#c2703d",
+    _animasi: "nyala", _animasi_kecepatan: "sedang"
+  };
 
   var HALAMAN = [
     { berkas: "index.html", nama: "Beranda" },
@@ -26,7 +31,8 @@
   ];
 
   var asli = {}, meta = {}, urutanKunci = [], ubah = {};
-  var kunciDiHalaman = [], bagianDiHalaman = [], kunciAktif = null, sedangKetik = false;
+  var kunciDiHalaman = [], bagianDiHalaman = [], gambarDiHalaman = [];
+  var kunciAktif = null, sedangKetik = false, gambarAktif = null;
 
   var $ = function (id) { return document.getElementById(id); };
   var elPratinjau = $("pratinjau"), elDaftar = $("daftar"), elCari = $("cari");
@@ -182,6 +188,15 @@
     if (d.jenis === "siap") {
       kunciDiHalaman = d.kunci || [];
       bagianDiHalaman = d.bagian || [];
+      gambarDiHalaman = d.gambar || [];
+      gambarDiHalaman.forEach(function (k) {
+        if (!(k in meta)) {
+          asli[k] = "";
+          meta[k] = { halaman: "Tampilan", bagian: "Gambar", label: "Gambar" };
+          urutanKunci.push(k);
+          KHUSUS[k] = meta[k];
+        }
+      });
       kirimTeks();
       elStatus.textContent = "Klik tulisan mana pun untuk mengubahnya · " +
         kunciDiHalaman.length + " tulisan, " + bagianDiHalaman.length + " bagian di halaman ini";
@@ -198,6 +213,8 @@
     } else if (d.jenis === "selesai") {
       sedangKetik = false;
       kirimTeks();
+    } else if (d.jenis === "gambar") {
+      bukaDialogGambar(d.kunci);
     } else if (d.jenis === "bagian") {
       if (d.aksi === "naik") geserBagian(d.nama, -1);
       else if (d.aksi === "turun") geserBagian(d.nama, 1);
@@ -205,12 +222,34 @@
     }
   });
 
+  /* ------------------------------------------------------ dialog gambar */
+  function bukaDialogGambar(kunci) {
+    gambarAktif = kunci;
+    var d = $("dialogGambar");
+    $("gambarAlamat").value = /^data:/.test(nilai(kunci)) ? "" : nilai(kunci);
+    $("gambarPeringatan").hidden = !/^data:/.test(nilai(kunci));
+    $("gambarHapus").hidden = !nilai(kunci);
+    d.hidden = false;
+    $("gambarAlamat").focus();
+  }
+  function tutupDialogGambar() {
+    $("dialogGambar").hidden = true;
+    gambarAktif = null;
+  }
+  function setGambar(v) {
+    if (!gambarAktif) return;
+    setNilai(gambarAktif, v);
+    kirimTeks();
+    gambarDaftar();
+  }
+
   /* ----------------------------------------------------------- ekspor */
   function csvLengkap() {
     var b = [["kunci", "halaman", "bagian", "isi", "keterangan"]];
     urutanKunci.forEach(function (k) {
       var v = nilai(k);
       if (k in KHUSUS && !v) return;
+      if (/^data:/.test(v)) return;   // gambar dari komputer hanya pratinjau, tidak diekspor
       b.push([k, meta[k].halaman, meta[k].bagian, v, k in KHUSUS ? KHUSUS[k].label : ""]);
     });
     return window.keCSV(b);
@@ -268,6 +307,38 @@
       });
     });
 
+    $("pilihAnimasi").value = nilai("_animasi") || "nyala";
+    $("pilihAnimasi").addEventListener("change", function () {
+      setNilai("_animasi", this.value); kirimTeks(); gambarDaftar();
+    });
+    $("pilihKecepatan").value = nilai("_animasi_kecepatan") || "sedang";
+    $("pilihKecepatan").addEventListener("change", function () {
+      setNilai("_animasi_kecepatan", this.value); kirimTeks(); gambarDaftar();
+    });
+
+    $("gambarAlamat").addEventListener("input", function () { setGambar(this.value.trim()); });
+    $("gambarTutup").addEventListener("click", tutupDialogGambar);
+    $("gambarHapus").addEventListener("click", function () {
+      setGambar(""); $("gambarAlamat").value = ""; $("gambarPeringatan").hidden = true; this.hidden = true;
+    });
+    $("gambarBerkas").addEventListener("change", function () {
+      var f = this.files && this.files[0];
+      if (!f) return;
+      if (f.size > 3 * 1024 * 1024) { alert("Berkas terlalu besar untuk pratinjau (maksimal 3 MB)."); return; }
+      var pembaca = new FileReader();
+      pembaca.onload = function () {
+        setGambar(pembaca.result);
+        $("gambarAlamat").value = "";
+        $("gambarPeringatan").hidden = false;
+        $("gambarHapus").hidden = false;
+      };
+      pembaca.readAsDataURL(f);
+      this.value = "";
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !$("dialogGambar").hidden) tutupDialogGambar();
+    });
+
     $("tombolPanel").addEventListener("click", function () {
       document.body.classList.toggle("panel-tertutup");
       this.setAttribute("aria-expanded", document.body.classList.contains("panel-tertutup") ? "false" : "true");
@@ -293,6 +364,8 @@
       ubah = {}; simpan(); perbaruiJumlah();
       $("warnaUtama").value = WARNA_BAWAAN._warna_utama;
       $("warnaAksen").value = WARNA_BAWAAN._warna_aksen;
+      $("pilihAnimasi").value = "nyala";
+      $("pilihKecepatan").value = "sedang";
       bukaHalaman(elPilihHalaman.value);
       gambarDaftar();
     });

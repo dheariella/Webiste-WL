@@ -1,0 +1,140 @@
+/* =========================================================================
+   anim.css — gerak dan animasi
+   Semua gerak dikendalikan dua hal:
+     <html data-animasi="nyala|mati">   dari baris _animasi di sheet
+     --anim-durasi                       dari baris _animasi_kecepatan
+   Dengan begitu animasi bisa dimatikan tanpa mengubah satu baris kode pun.
+   ========================================================================= */
+
+:root {
+  --anim-durasi: .65s;
+  --anim-jeda: 90ms;
+  --anim-lengkung: cubic-bezier(.22, .68, .32, 1);
+}
+
+/* ---------- Muncul saat digulir ---------- */
+[data-anim] {
+  opacity: 0;
+  transition: opacity var(--anim-durasi) var(--anim-lengkung),
+              transform var(--anim-durasi) var(--anim-lengkung);
+  will-change: opacity, transform;
+}
+[data-anim="naik"]  { transform: translateY(26px); }
+[data-anim="turun"] { transform: translateY(-26px); }
+[data-anim="kiri"]  { transform: translateX(-34px); }
+[data-anim="kanan"] { transform: translateX(34px); }
+[data-anim="zoom"]  { transform: scale(.94); }
+[data-anim="masuk"] { transform: none; }
+[data-anim].tampil  { opacity: 1; transform: none; }
+
+/* Animasi dimatikan: semua langsung terlihat */
+html[data-animasi="mati"] [data-anim],
+html[data-animasi="mati"] .reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ---------- Hero ---------- */
+.hero-isi > * {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: heroMasuk var(--anim-durasi) var(--anim-lengkung) forwards;
+}
+.hero-isi > *:nth-child(1) { animation-delay: .05s; }
+.hero-isi > *:nth-child(2) { animation-delay: calc(.05s + var(--anim-jeda)); }
+.hero-isi > *:nth-child(3) { animation-delay: calc(.05s + var(--anim-jeda) * 2); }
+.hero-isi > *:nth-child(4) { animation-delay: calc(.05s + var(--anim-jeda) * 3); }
+.hero-isi > *:nth-child(5) { animation-delay: calc(.05s + var(--anim-jeda) * 4); }
+@keyframes heroMasuk { to { opacity: 1; transform: none; } }
+html[data-animasi="mati"] .hero-isi > * { opacity: 1; transform: none; animation: none; }
+
+/* Kain yang melayang pelan di hero */
+.swatch { animation: melayang 7s ease-in-out infinite; }
+.swatch--2 { animation-delay: -1.8s; }
+.swatch--3 { animation-delay: -3.6s; }
+.swatch--4 { animation-delay: -5.2s; }
+@keyframes melayang {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-11px) rotate(-.5deg); }
+}
+html[data-animasi="mati"] .swatch { animation: none; }
+
+/* Kilau lembut melintasi kain */
+.swatch::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.28) 50%, transparent 62%);
+  transform: translateX(-120%);
+  animation: kilau 5.5s ease-in-out infinite;
+  pointer-events: none;
+}
+.swatch--2::after { animation-delay: 1.1s; }
+.swatch--3::after { animation-delay: 2.3s; }
+.swatch--4::after { animation-delay: 3.4s; }
+@keyframes kilau {
+  0%, 62% { transform: translateX(-120%); }
+  84%, 100% { transform: translateX(120%); }
+}
+html[data-animasi="mati"] .swatch::after { animation: none; opacity: 0; }
+
+/* ---------- Deretan nama kain berjalan ---------- */
+.pita {
+  overflow: hidden;
+  background: var(--navy-800);
+  color: #cfe0e6;
+  padding: 13px 0;
+  border-top: 1px solid rgba(255,255,255,.1);
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.pita-jalur { display: flex; width: max-content; animation: berjalan 42s linear infinite; }
+.pita:hover .pita-jalur { animation-play-state: paused; }
+.pita-isi { white-space: nowrap; padding-right: 42px; font-size: .92rem; font-weight: 600; letter-spacing: .01em; }
+@keyframes berjalan { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+html[data-animasi="mati"] .pita-jalur { animation: none; }
+
+/* ---------- Kartu yang bereaksi ---------- */
+.kain-card, .card--hover, .post-card { transition: transform .28s var(--anim-lengkung), box-shadow .28s ease; }
+html[data-animasi="nyala"] .kain-card:hover,
+html[data-animasi="nyala"] .post-card:hover { transform: translateY(-6px) scale(1.012); }
+
+/* Sorotan mengikuti kursor pada kartu kategori */
+.kain-card { position: relative; overflow: hidden; }
+.kain-card::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 2;
+  opacity: 0; transition: opacity .3s ease;
+  background: radial-gradient(240px circle at var(--kursor-x, 50%) var(--kursor-y, 50%),
+              rgba(255,255,255,.22), transparent 62%);
+  pointer-events: none;
+}
+html[data-animasi="nyala"] .kain-card:hover::before { opacity: 1; }
+
+/* ---------- Angka statistik ---------- */
+.stat strong { font-variant-numeric: tabular-nums; }
+
+/* ---------- Tombol ---------- */
+html[data-animasi="nyala"] .btn-wa { position: relative; overflow: hidden; }
+html[data-animasi="nyala"] .btn-wa::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(120deg, transparent 40%, rgba(255,255,255,.35) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: kilau 4.5s ease-in-out infinite 1.5s;
+}
+
+/* ---------- Gambar ---------- */
+.gambar-slot { position: relative; overflow: hidden; background: var(--cream-2); }
+.gambar-slot img { width: 100%; height: 100%; object-fit: cover; display: block;
+                   transition: transform .55s var(--anim-lengkung); }
+html[data-animasi="nyala"] .gambar-slot:hover img { transform: scale(1.05); }
+
+/* ---------- Hormati pengaturan sistem pengguna ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  [data-anim] { opacity: 1 !important; transform: none !important; }
+  .hero-isi > * { opacity: 1 !important; transform: none !important; }
+}
