@@ -1,15 +1,21 @@
 /* =========================================================================
    editor.js — otak halaman editor.html
-   Menyatukan: sumber teks (sheet atau salinan bawaan), pratinjau di dalam
-   iframe, daftar tulisan yang bisa diubah, dan ekspor hasilnya.
-   Perubahan disimpan sementara di browser (localStorage) sampai Anda
-   mengunduh CSV atau menyalinnya ke Google Sheet.
+   Mengatur pratinjau, pengubahan teks langsung di halaman, warna,
+   urutan bagian, serta ekspor hasilnya ke CSV untuk Google Sheet.
+   Perubahan disimpan sementara di browser sampai diekspor.
    ========================================================================= */
 (function () {
   "use strict";
 
   var ASAL = location.origin;
-  var SIMPANAN = "wl-editor-perubahan-v1";
+  var SIMPANAN = "wl-editor-perubahan-v2";
+  var KHUSUS = {
+    _warna_utama: { halaman: "Tampilan", bagian: "Warna", label: "Warna utama" },
+    _warna_aksen: { halaman: "Tampilan", bagian: "Warna", label: "Warna aksen" },
+    _sembunyi:    { halaman: "Tampilan", bagian: "Bagian", label: "Bagian disembunyikan" },
+    _urutan:      { halaman: "Tampilan", bagian: "Bagian", label: "Urutan bagian" }
+  };
+  var WARNA_BAWAAN = { _warna_utama: "#002f3d", _warna_aksen: "#c2703d" };
 
   var HALAMAN = [
     { berkas: "index.html", nama: "Beranda" },
@@ -19,48 +25,40 @@
     { berkas: "kontak.html", nama: "Kontak" }
   ];
 
-  var asli = {};        // kunci -> teks sumber (dari sheet atau CSV bawaan)
-  var meta = {};        // kunci -> { halaman, bagian }
-  var urutanKunci = []; // urutan asli dari CSV
-  var ubah = {};        // kunci -> teks baru (hanya yang berbeda dari asli)
-  var kunciDiHalaman = [];
-  var kunciAktif = null;
-  var sumberTeks = "";
+  var asli = {}, meta = {}, urutanKunci = [], ubah = {};
+  var kunciDiHalaman = [], bagianDiHalaman = [], kunciAktif = null, sedangKetik = false;
 
-  var elPratinjau = document.getElementById("pratinjau");
-  var elDaftar = document.getElementById("daftar");
-  var elCari = document.getElementById("cari");
-  var elJumlah = document.getElementById("jumlahUbah");
-  var elSumber = document.getElementById("sumber");
-  var elPilihHalaman = document.getElementById("pilihHalaman");
-  var elStatus = document.getElementById("status");
-  var elHanyaHalaman = document.getElementById("hanyaHalaman");
+  var $ = function (id) { return document.getElementById(id); };
+  var elPratinjau = $("pratinjau"), elDaftar = $("daftar"), elCari = $("cari");
+  var elJumlah = $("jumlahUbah"), elSumber = $("sumber"), elStatus = $("status");
+  var elPilihHalaman = $("pilihHalaman"), elHanyaHalaman = $("hanyaHalaman");
 
-  /* ------------------------------------------------ simpanan sementara */
+  /* ----------------------------------------------------- simpanan */
   function muatSimpanan() {
-    try { ubah = JSON.parse(localStorage.getItem(SIMPANAN)) || {}; }
-    catch (e) { ubah = {}; }
+    try { ubah = JSON.parse(localStorage.getItem(SIMPANAN)) || {}; } catch (e) { ubah = {}; }
   }
   function simpan() {
     try { localStorage.setItem(SIMPANAN, JSON.stringify(ubah)); } catch (e) {}
   }
+  function bawaan(k) { return k in WARNA_BAWAAN ? WARNA_BAWAAN[k] : (asli[k] || ""); }
+  function nilai(k) { return k in ubah ? ubah[k] : bawaan(k); }
+  function berubah(k) { return k in ubah && ubah[k] !== bawaan(k); }
+  function jumlahUbah() { return Object.keys(ubah).filter(berubah).length; }
 
-  function nilai(kunci) {
-    return kunci in ubah ? ubah[kunci] : (asli[kunci] || "");
-  }
-  function berubah(kunci) {
-    return kunci in ubah && ubah[kunci] !== (asli[kunci] || "");
+  function setNilai(k, v) {
+    if (v === bawaan(k)) delete ubah[k]; else ubah[k] = v;
+    simpan();
+    perbaruiJumlah();
   }
 
-  /* ------------------------------------------------ memuat sumber teks */
+  /* ----------------------------------------------- memuat sumber teks */
   function ambilCsv(url) {
     return fetch(url, { cache: "no-store" }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r.text();
     });
   }
-
-  function pasangSumber(baris, dariMana) {
+  function pasangSumber(baris, dari) {
     asli = {}; meta = {}; urutanKunci = [];
     baris.forEach(function (r) {
       var k = (r.kunci || "").trim();
@@ -69,177 +67,180 @@
       meta[k] = { halaman: (r.halaman || "Lainnya").trim(), bagian: (r.bagian || "").trim() };
       urutanKunci.push(k);
     });
-    sumberTeks = dariMana;
-    elSumber.textContent = dariMana;
+    Object.keys(KHUSUS).forEach(function (k) {
+      if (!(k in asli)) { asli[k] = ""; meta[k] = KHUSUS[k]; urutanKunci.push(k); }
+    });
+    elSumber.textContent = dari;
   }
-
   function muatSumber() {
-    var cfgSheet = (window.SITE && window.SITE.sheet) || {};
-    var dariSheet = cfgSheet.aktif && cfgSheet.teks
-      ? ambilCsv(cfgSheet.teks).then(function (t) {
-          var baris = window.csvKeObjek(t);
-          var berisi = baris.filter(function (r) {
-            return (r.kunci || "").trim() && !/^(CARA_PAKAI|ATURAN_\d+)$/.test(r.kunci.trim());
-          });
-          if (berisi.length < 20) throw new Error("sheet belum diisi");
-          pasangSumber(baris, "Google Sheet WL — TEKS");
-          return true;
+    var c = (window.SITE && window.SITE.sheet) || {};
+    var dariSheet = c.aktif && c.teks
+      ? ambilCsv(c.teks).then(function (t) {
+          var b = window.csvKeObjek(t);
+          if (b.filter(function (r) { return (r.kunci || "").trim() && !/^(CARA_PAKAI|ATURAN_\d+)$/.test(r.kunci.trim()); }).length < 20)
+            throw new Error("sheet belum diisi");
+          pasangSumber(b, "Google Sheet WL — TEKS");
         })
-      : Promise.reject(new Error("sambungan sheet tidak aktif"));
-
+      : Promise.reject(new Error("sheet tidak aktif"));
     return dariSheet.catch(function () {
       return ambilCsv("data/WL-TEKS.csv").then(function (t) {
-        pasangSumber(window.csvKeObjek(t), "salinan bawaan (data/WL-TEKS.csv)");
-        return false;
+        pasangSumber(window.csvKeObjek(t), "salinan bawaan");
       });
     });
   }
 
-  /* ------------------------------------------------ daftar di panel kanan */
-  function ringkas(teks, panjang) {
-    var polos = String(teks).replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, " ").trim();
-    return polos.length > panjang ? polos.slice(0, panjang) + "…" : polos;
-  }
-
-  function gambarDaftar() {
-    var q = (elCari.value || "").trim().toLowerCase();
-    var batasiHalaman = elHanyaHalaman.checked && kunciDiHalaman.length;
-    var tampil = urutanKunci.filter(function (k) {
-      if (batasiHalaman && kunciDiHalaman.indexOf(k) === -1) return false;
-      if (!q) return true;
-      return (k + " " + nilai(k) + " " + meta[k].halaman + " " + meta[k].bagian).toLowerCase().indexOf(q) !== -1;
-    });
-
-    if (!tampil.length) {
-      elDaftar.innerHTML = '<p class="kosong">Tidak ada tulisan yang cocok.</p>';
-      return;
-    }
-
-    var html = "", bagianTerakhir = "";
-    tampil.forEach(function (k) {
-      var m = meta[k];
-      var judulBagian = m.halaman + (m.bagian ? " · " + m.bagian : "");
-      if (judulBagian !== bagianTerakhir) {
-        bagianTerakhir = judulBagian;
-        html += '<h3 class="grup">' + judulBagian + "</h3>";
-      }
-      html += '<button type="button" class="baris' + (berubah(k) ? " diubah" : "") +
-              (k === kunciAktif ? " aktif" : "") + '" data-kunci="' + k + '">' +
-              '<span class="cuplik">' + (ringkas(nilai(k), 70) || "(kosong)") + "</span>" +
-              '<span class="kunci-kecil">' + k + "</span></button>";
-    });
-    elDaftar.innerHTML = html;
-  }
-
-  function perbaruiJumlah() {
-    var n = Object.keys(ubah).filter(berubah).length;
-    elJumlah.textContent = n;
-    document.body.classList.toggle("ada-perubahan", n > 0);
-  }
-
-  /* ------------------------------------------------ kotak ubah */
-  function bukaKunci(k, gulirDaftar) {
-    kunciAktif = k;
-    var m = meta[k] || { halaman: "", bagian: "" };
-    var kotak = document.getElementById("kotakUbah");
-    kotak.hidden = false;
-    document.getElementById("kotakLokasi").textContent = m.halaman + (m.bagian ? " · " + m.bagian : "");
-    document.getElementById("kotakKunci").textContent = k;
-    var ta = document.getElementById("kotakIsi");
-    ta.value = nilai(k);
-    ta.focus();
-    ta.setSelectionRange(ta.value.length, ta.value.length);
-    document.getElementById("tombolKembalikan").hidden = !berubah(k);
-    var adaPenanda = /\{jumlah_[a-z]+\}/.test(nilai(k));
-    document.getElementById("catatanPenanda").hidden = !adaPenanda;
-    gambarDaftar();
-    if (gulirDaftar) {
-      var b = elDaftar.querySelector('.baris[data-kunci="' + k + '"]');
-      if (b) b.scrollIntoView({ block: "center" });
-    }
-    kirimKePratinjau({ jenis: "sorot", kunci: k });
-  }
-
-  function tutupKotak() {
-    kunciAktif = null;
-    document.getElementById("kotakUbah").hidden = true;
-    kirimKePratinjau({ jenis: "lepas" });
-    gambarDaftar();
-  }
-
-  /* ------------------------------------------------ pratinjau */
-  function kirimKePratinjau(pesan) {
+  /* ----------------------------------------------------- pratinjau */
+  function kirim(pesan) {
     if (!elPratinjau.contentWindow) return;
     pesan.dari = "editor";
     try { elPratinjau.contentWindow.postMessage(pesan, ASAL); } catch (e) {}
   }
-
   function kirimTeks() {
-    var gabung = {};
-    urutanKunci.forEach(function (k) { gabung[k] = nilai(k); });
-    kirimKePratinjau({ jenis: "teks", isi: gabung });
+    var g = {};
+    urutanKunci.forEach(function (k) { var v = nilai(k); if (v !== "") g[k] = v; });
+    kirim({ jenis: "teks", isi: g });
   }
-
   function bukaHalaman(berkas) {
     elStatus.textContent = "Memuat pratinjau…";
+    kunciAktif = null; sedangKetik = false;
     elPratinjau.src = berkas + "?editor=1";
   }
 
+  /* -------------------------------------------------- daftar tulisan */
+  function ringkas(t, n) {
+    var p = String(t).replace(/<[^>]*>/g, "").replace(/&[a-z]+;/gi, " ").trim();
+    return p.length > n ? p.slice(0, n) + "…" : p;
+  }
+  function gambarDaftar() {
+    var q = (elCari.value || "").trim().toLowerCase();
+    var batas = elHanyaHalaman.checked && kunciDiHalaman.length;
+    var tampil = urutanKunci.filter(function (k) {
+      if (k in KHUSUS) return false;
+      if (batas && kunciDiHalaman.indexOf(k) === -1) return false;
+      if (!q) return true;
+      return (k + " " + nilai(k) + " " + meta[k].halaman + " " + meta[k].bagian).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!tampil.length) { elDaftar.innerHTML = '<p class="kosong">Tidak ada tulisan yang cocok.</p>'; return; }
+    var html = "", grup = "";
+    tampil.forEach(function (k) {
+      var g = meta[k].halaman + (meta[k].bagian ? " · " + meta[k].bagian : "");
+      if (g !== grup) { grup = g; html += '<h3 class="grup">' + g + "</h3>"; }
+      html += '<button type="button" class="baris' + (berubah(k) ? " diubah" : "") +
+              (k === kunciAktif ? " aktif" : "") + '" data-kunci="' + k + '">' +
+              ringkas(nilai(k), 74) + "</button>";
+    });
+    elDaftar.innerHTML = html;
+  }
+  function perbaruiJumlah() {
+    var n = jumlahUbah();
+    elJumlah.textContent = n;
+    document.body.classList.toggle("ada-perubahan", n > 0);
+  }
+
+  /* ----------------------------------------------------- bagian halaman */
+  function daftarUrutan() {
+    return (nilai("_urutan") || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+  function daftarSembunyi() {
+    return (nilai("_sembunyi") || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+  function urutanHalamanIni() {
+    var tersimpan = daftarUrutan();
+    var namaHalaman = bagianDiHalaman.map(function (b) { return b.nama; });
+    var dari = tersimpan.filter(function (n) { return namaHalaman.indexOf(n) !== -1; });
+    namaHalaman.forEach(function (n) { if (dari.indexOf(n) === -1) dari.push(n); });
+    return dari;
+  }
+  function simpanUrutanHalaman(baru) {
+    var namaHalaman = bagianDiHalaman.map(function (b) { return b.nama; });
+    var lain = daftarUrutan().filter(function (n) { return namaHalaman.indexOf(n) === -1; });
+    setNilai("_urutan", lain.concat(baru).join(","));
+  }
+  function geserBagian(nama, arah) {
+    var u = urutanHalamanIni();
+    var i = u.indexOf(nama);
+    var j = i + arah;
+    if (i === -1 || j < 0 || j >= u.length) return;
+    u.splice(j, 0, u.splice(i, 1)[0]);
+    simpanUrutanHalaman(u);
+    kirimTeks();
+    elStatus.textContent = "Urutan bagian diubah.";
+  }
+  function alihSembunyi(nama) {
+    var s = daftarSembunyi();
+    var i = s.indexOf(nama);
+    if (i === -1) s.push(nama); else s.splice(i, 1);
+    setNilai("_sembunyi", s.join(","));
+    kirimTeks();
+    elStatus.textContent = i === -1 ? "Bagian disembunyikan." : "Bagian ditampilkan kembali.";
+  }
+
+  /* ------------------------------------------------------- pesan masuk */
   window.addEventListener("message", function (e) {
     if (e.origin !== ASAL || !e.data || e.data.dari !== "pratinjau") return;
-    if (e.data.jenis === "siap") {
-      kunciDiHalaman = e.data.kunci || [];
+    var d = e.data;
+    if (d.jenis === "siap") {
+      kunciDiHalaman = d.kunci || [];
+      bagianDiHalaman = d.bagian || [];
       kirimTeks();
-      elStatus.textContent = kunciDiHalaman.length + " tulisan bisa diklik di halaman ini";
+      elStatus.textContent = "Klik tulisan mana pun untuk mengubahnya · " +
+        kunciDiHalaman.length + " tulisan, " + bagianDiHalaman.length + " bagian di halaman ini";
       gambarDaftar();
-      if (kunciAktif && kunciDiHalaman.indexOf(kunciAktif) !== -1) {
-        kirimKePratinjau({ jenis: "sorot", kunci: kunciAktif });
-      }
-    } else if (e.data.jenis === "pilih") {
-      bukaKunci(e.data.kunci, true);
+    } else if (d.jenis === "pilih") {
+      sedangKetik = true;
+      kunciAktif = d.kunci;
+      gambarDaftar();
+      var b = elDaftar.querySelector('.baris[data-kunci="' + d.kunci + '"]');
+      if (b) b.scrollIntoView({ block: "nearest" });
+    } else if (d.jenis === "ubah") {
+      setNilai(d.kunci, d.isi);
+      gambarDaftar();
+    } else if (d.jenis === "selesai") {
+      sedangKetik = false;
+      kirimTeks();
+    } else if (d.jenis === "bagian") {
+      if (d.aksi === "naik") geserBagian(d.nama, -1);
+      else if (d.aksi === "turun") geserBagian(d.nama, 1);
+      else if (d.aksi === "sembunyi") alihSembunyi(d.nama);
     }
   });
 
-  /* ------------------------------------------------ ekspor */
+  /* ----------------------------------------------------------- ekspor */
   function csvLengkap() {
-    var baris = [["kunci", "halaman", "bagian", "isi", "keterangan"]];
+    var b = [["kunci", "halaman", "bagian", "isi", "keterangan"]];
     urutanKunci.forEach(function (k) {
-      baris.push([k, meta[k].halaman, meta[k].bagian, nilai(k), ""]);
+      var v = nilai(k);
+      if (k in KHUSUS && !v) return;
+      b.push([k, meta[k].halaman, meta[k].bagian, v, k in KHUSUS ? KHUSUS[k].label : ""]);
     });
-    return window.keCSV(baris);
+    return window.keCSV(b);
   }
-
-  function unduh(namaBerkas, isi, tipe) {
-    var blob = new Blob(["﻿" + isi], { type: tipe + ";charset=utf-8" });
+  function unduh(nama, isi) {
+    var blob = new Blob(["﻿" + isi], { type: "text/csv;charset=utf-8" });
     var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = namaBerkas;
-    document.body.appendChild(a);
-    a.click();
+    a.href = URL.createObjectURL(blob); a.download = nama;
+    document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   }
-
   function salin(teks, tombol) {
-    var selesai = function () {
-      var asliTeks = tombol.textContent;
-      tombol.textContent = "Tersalin";
-      tombol.classList.add("sukses");
-      setTimeout(function () { tombol.textContent = asliTeks; tombol.classList.remove("sukses"); }, 1800);
+    var beres = function () {
+      var t = tombol.textContent;
+      tombol.textContent = "Tersalin"; tombol.classList.add("sukses");
+      setTimeout(function () { tombol.textContent = t; tombol.classList.remove("sukses"); }, 1800);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(teks).then(selesai, function () { salinCadangan(teks, selesai); });
-    } else { salinCadangan(teks, selesai); }
+      navigator.clipboard.writeText(teks).then(beres, function () { cadangan(teks, beres); });
+    } else cadangan(teks, beres);
   }
-  function salinCadangan(teks, selesai) {
+  function cadangan(teks, beres) {
     var ta = document.createElement("textarea");
-    ta.value = teks;
-    ta.style.position = "fixed"; ta.style.opacity = "0";
+    ta.value = teks; ta.style.position = "fixed"; ta.style.opacity = "0";
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand("copy"); selesai(); } catch (e) { alert("Tidak bisa menyalin otomatis. Salin manual dari kotak isian."); }
+    try { document.execCommand("copy"); beres(); } catch (e) { alert("Tidak bisa menyalin otomatis."); }
     ta.remove();
   }
 
-  /* ------------------------------------------------ pasang kejadian */
+  /* ------------------------------------------------------------ pasang */
   function pasang() {
     HALAMAN.forEach(function (h, i) {
       var o = document.createElement("option");
@@ -257,65 +258,54 @@
       });
     });
 
-    elCari.addEventListener("input", gambarDaftar);
-    elHanyaHalaman.addEventListener("change", gambarDaftar);
-
-    elDaftar.addEventListener("click", function (e) {
-      var b = e.target.closest(".baris");
-      if (b) bukaKunci(b.getAttribute("data-kunci"), false);
+    ["_warna_utama", "_warna_aksen"].forEach(function (k) {
+      var inp = $(k === "_warna_utama" ? "warnaUtama" : "warnaAksen");
+      inp.value = nilai(k) || WARNA_BAWAAN[k];
+      inp.addEventListener("input", function () {
+        setNilai(k, inp.value);
+        kirimTeks();
+        gambarDaftar();
+      });
     });
 
-    var ta = document.getElementById("kotakIsi");
-    ta.addEventListener("input", function () {
-      if (!kunciAktif) return;
-      if (ta.value === (asli[kunciAktif] || "")) delete ubah[kunciAktif];
-      else ubah[kunciAktif] = ta.value;
-      simpan();
-      perbaruiJumlah();
-      document.getElementById("tombolKembalikan").hidden = !berubah(kunciAktif);
-      document.getElementById("catatanPenanda").hidden = !/\{jumlah_[a-z]+\}/.test(ta.value);
-      kirimTeks();
+    $("tombolPanel").addEventListener("click", function () {
+      document.body.classList.toggle("panel-tertutup");
+      this.setAttribute("aria-expanded", document.body.classList.contains("panel-tertutup") ? "false" : "true");
+    });
+
+    elCari.addEventListener("input", gambarDaftar);
+    elHanyaHalaman.addEventListener("change", gambarDaftar);
+    elDaftar.addEventListener("click", function (e) {
+      var b = e.target.closest(".baris");
+      if (b) kirim({ jenis: "ketik", kunci: b.getAttribute("data-kunci") });
+    });
+
+    $("tombolUnduh").addEventListener("click", function () { unduh("WL-TEKS.csv", csvLengkap()); });
+    $("tombolSalin").addEventListener("click", function () {
+      var k = urutanKunci.filter(berubah);
+      if (!k.length) { alert("Belum ada yang diubah."); return; }
+      salin(k.map(function (x) { return x + "\t" + nilai(x); }).join("\n"), this);
+    });
+    $("tombolReset").addEventListener("click", function () {
+      var n = jumlahUbah();
+      if (!n) { alert("Belum ada perubahan."); return; }
+      if (!confirm("Buang " + n + " perubahan dan kembalikan semuanya ke semula?")) return;
+      ubah = {}; simpan(); perbaruiJumlah();
+      $("warnaUtama").value = WARNA_BAWAAN._warna_utama;
+      $("warnaAksen").value = WARNA_BAWAAN._warna_aksen;
+      bukaHalaman(elPilihHalaman.value);
       gambarDaftar();
     });
 
-    document.getElementById("tombolTutupKotak").addEventListener("click", tutupKotak);
-    document.getElementById("tombolKembalikan").addEventListener("click", function () {
-      if (!kunciAktif) return;
-      delete ubah[kunciAktif];
-      simpan(); perbaruiJumlah(); kirimTeks();
-      bukaKunci(kunciAktif, false);
-    });
-
-    document.getElementById("tombolUnduh").addEventListener("click", function () {
-      unduh("WL-TEKS.csv", csvLengkap(), "text/csv");
-    });
-
-    document.getElementById("tombolSalin").addEventListener("click", function () {
-      var kunciBerubah = urutanKunci.filter(berubah);
-      if (!kunciBerubah.length) { alert("Belum ada tulisan yang diubah."); return; }
-      salin(kunciBerubah.map(function (k) { return k + "\t" + nilai(k); }).join("\n"), this);
-    });
-
-    document.getElementById("tombolReset").addEventListener("click", function () {
-      var n = Object.keys(ubah).filter(berubah).length;
-      if (!n) { alert("Belum ada perubahan."); return; }
-      if (!confirm("Buang " + n + " perubahan dan kembalikan semua tulisan ke semula?")) return;
-      ubah = {}; simpan(); perbaruiJumlah(); kirimTeks(); gambarDaftar();
-      if (kunciAktif) bukaKunci(kunciAktif, false);
-    });
-
     window.addEventListener("beforeunload", function (e) {
-      if (Object.keys(ubah).filter(berubah).length) { e.preventDefault(); e.returnValue = ""; }
+      if (jumlahUbah()) { e.preventDefault(); e.returnValue = ""; }
     });
   }
 
-  /* ------------------------------------------------ mulai */
   muatSimpanan();
   pasang();
   muatSumber().then(function () {
-    perbaruiJumlah();
-    gambarDaftar();
-    bukaHalaman(HALAMAN[0].berkas);
+    perbaruiJumlah(); gambarDaftar(); bukaHalaman(HALAMAN[0].berkas);
   }).catch(function (e) {
     elStatus.textContent = "Gagal memuat daftar tulisan: " + e.message;
   });

@@ -64,38 +64,65 @@ Sheets**), Google membuat sheet **baru** dengan ID berbeda — alamat `teks` pad
 
 ---
 
-### Editor tulisan (cara termudah mengubah teks)
+### Editor langsung (cara termudah mengubah website)
 
 Buka **`editor.html`** di website Anda (misalnya
-`https://dheariella.github.io/Webiste-WL/editor.html`). Halaman ini menampilkan website
-Anda di sebelah kiri dan daftar tulisan di sebelah kanan.
+`https://dheariella.github.io/Webiste-WL/editor.html`).
 
-Cara pakainya:
+**Mengubah tulisan.** Klik tulisan mana pun di halaman, lalu langsung ketik di tempat.
+Setiap tulisan yang bisa diubah bertanda garis putus-putus saat kursor melewatinya.
+Tekan **Enter** atau klik di luar untuk selesai, **Esc** untuk membatalkan pengetikan.
 
-1. Pilih halaman yang ingin diubah dari menu **Halaman** di bilah atas.
-2. **Klik tulisan mana pun** di pratinjau sebelah kiri &mdash; setiap tulisan yang bisa diubah
-   ditandai garis putus-putus.
-3. Ubah di kotak yang muncul di kanan bawah. Hasilnya **langsung terlihat** di pratinjau.
-4. Setelah selesai, tekan **Unduh CSV**, lalu impor berkasnya ke sheet `WL — TEKS`
-   (File &rarr; Import &rarr; pilih berkasnya &rarr; **Replace current sheet**).
+**Mengubah warna.** Dua kotak warna di bilah atas: *warna utama* (hero, footer, tombol
+utama, logo) dan *warna aksen* (harga, tautan, sorotan). Seluruh halaman ikut berubah
+seketika.
+
+**Mengatur bagian halaman.** Arahkan kursor ke satu bagian, lalu pakai tombol yang muncul
+di pojok kanan atasnya: **Naik**, **Turun**, atau **Sembunyikan**. Bagian yang
+disembunyikan tetap terlihat samar di editor dengan label *Disembunyikan* supaya bisa
+ditampilkan lagi; di website aslinya bagian itu hilang sepenuhnya.
+
+**Alat lain di bilah atas:** pemilih halaman, tombol **Ponsel** untuk melihat tampilan
+layar kecil, dan **Daftar tulisan** untuk membuka atau menutup daftar di kanan (berguna
+untuk mencari tulisan yang letaknya jauh &mdash; klik barisnya, editor akan menggulir ke
+tulisannya dan langsung menyiapkannya untuk diketik).
+
+**Menyimpan hasilnya.** Tekan **Unduh CSV**, lalu impor berkasnya ke sheet `WL — TEKS`
+(File &rarr; Import &rarr; pilih berkasnya &rarr; **Replace current sheet**).
 
 Catatan penting:
 
 - Perubahan di editor **tersimpan sementara di browser Anda saja**. Website yang dilihat
   orang lain baru berubah setelah CSV-nya diimpor ke Google Sheet.
-- Karena tersimpan di browser, pekerjaan Anda tidak hilang bila halaman tertutup &mdash;
-  buka lagi `editor.html` dan perubahannya masih ada.
-- Tombol **Salin yang diubah** menyalin hanya baris yang Anda ubah (kunci dan isinya),
-  berguna bila ingin menempelkan beberapa sel saja secara manual ke sheet.
+- Karena tersimpan di browser, pekerjaan Anda tidak hilang bila halaman ditutup.
+- **Penanda angka tetap aman.** Tulisan yang memuat `{jumlah_kain}` akan menampilkan
+  penandanya saat sedang diketik, dan kembali menampilkan angka setelah selesai. Biarkan
+  penandanya bila ingin angkanya terus terbarui sendiri.
+- Tombol **Salin yang diubah** menyalin hanya baris yang berubah, untuk ditempel manual
+  ke beberapa sel di sheet.
 - Tombol **Kembalikan semua** membuang seluruh perubahan yang belum diekspor.
-- Editor mengambil tulisan dari Google Sheet bila sheet sudah dibagikan; bila belum,
-  ia memakai salinan bawaan. Sumber yang sedang dipakai tertulis di pojok kanan bawah.
-- Tombol **Ponsel** di bilah atas memperlihatkan tampilan di layar kecil.
 
-Halaman ini tidak muncul di menu dan dikecualikan dari mesin pencari. Karena tidak
-menyimpan apa pun ke server, membukanya tidak berisiko mengubah website secara tidak sengaja.
+**Yang tidak bisa dilakukan.** Editor ini bukan Canva. Posisi setiap bagian tidak bisa
+digeser bebas, karena halaman harus menata ulang dirinya di layar ponsel &mdash; menggeser
+sesuatu "tiga sentimeter ke kanan" tidak punya arti di layar selebar 390 px. Yang tersedia
+adalah memindahkan urutan bagian ke atas atau ke bawah, yang hasilnya tetap rapi di semua
+ukuran layar.
 
----
+### Baris pengaturan tampilan di sheet
+
+Selain baris tulisan biasa, editor menambahkan beberapa baris khusus pada CSV. Baris-baris
+ini boleh diubah langsung di sheet bila perlu:
+
+| Kunci | Isinya |
+|---|---|
+| `_warna_utama` | Kode warna utama, mis. `#002f3d` |
+| `_warna_aksen` | Kode warna aksen, mis. `#c2703d` |
+| `_sembunyi` | Daftar bagian yang disembunyikan, mis. `index-3,index-7` |
+| `_urutan` | Urutan bagian pada halaman, mis. `index-4,index-2,index-3` |
+
+Penanda bagian seperti `index-3` diberikan berurutan sesuai letaknya di halaman. Bila
+kelak ada bagian baru yang disisipkan, penomorannya bergeser &mdash; jadi periksa lagi
+kedua baris terakhir itu setelah ada perubahan susunan halaman.
 
 ### Memastikan sambungannya jalan
 

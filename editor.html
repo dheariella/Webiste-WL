@@ -87,21 +87,16 @@
                           background: var(--terra-soft); padding: 2px 7px; border-radius: 999px; }
   .kosong { padding: 24px 12px; color: var(--ink-mute); font-size: .9rem; text-align: center; }
 
-  /* ---------- kotak ubah ---------- */
-  #kotakUbah { flex: none; border-top: 1px solid var(--line); padding: 14px 16px 16px; background: var(--cream); }
-  #kotakUbah .kepala { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
-  #kotakLokasi { font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-mute); font-weight: 800; }
-  #kotakKunci { font-family: ui-monospace, monospace; font-size: .7rem; color: var(--ink-mute); }
-  #kotakIsi { width: 100%; min-height: 128px; resize: vertical; line-height: 1.6; font-size: .93rem; }
-  #kotakIsi:focus { outline: 2px solid var(--terra); outline-offset: 1px; }
-  .kotak-kaki { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .catatan { margin: 9px 0 0; font-size: .8rem; color: var(--ink-soft); background: var(--terra-soft);
-             border-radius: 8px; padding: 8px 11px; }
-  .catatan code { background: rgba(255,255,255,.7); padding: 1px 5px; border-radius: 4px; }
-
   .bantuan { padding: 12px 16px; font-size: .8rem; color: var(--ink-soft); background: var(--cream);
              border-top: 1px solid var(--line); }
   .bantuan strong { color: var(--ink); }
+
+  .kelompok { display: inline-flex; align-items: center; }
+  .warna input[type="color"] { width: 34px; height: 30px; padding: 2px; border: 1px solid rgba(255,255,255,.3);
+    border-radius: 8px; background: transparent; cursor: pointer; margin-left: 5px; }
+  body.panel-tertutup .kanan { display: none; }
+  #tombolPanel[aria-expanded="false"] { opacity: .6; }
+  .baris { font-size: .87rem; line-height: 1.45; color: var(--ink); }
 
   @media (max-width: 1100px) {
     body { overflow: auto; }
@@ -115,17 +110,24 @@
 <body>
 
 <header class="atas">
-  <span class="judul"><img src="assets/img/favicon.svg" alt=""> Editor Tulisan</span>
+  <span class="judul"><img src="assets/img/favicon.svg" alt=""> Editor</span>
 
-  <span><label for="pilihHalaman">Halaman</label><select id="pilihHalaman"></select></span>
+  <span class="kelompok"><label for="pilihHalaman">Halaman</label><select id="pilihHalaman"></select></span>
 
   <span class="lebar-grup">
     <button type="button" data-lebar="100%" class="aktif">Layar lebar</button>
     <button type="button" data-lebar="430px">Ponsel</button>
   </span>
 
+  <span class="kelompok warna">
+    <label for="warnaUtama">Warna</label>
+    <input type="color" id="warnaUtama" title="Warna utama (hero, footer, tombol)">
+    <input type="color" id="warnaAksen" title="Warna aksen (harga, tautan, sorotan)">
+  </span>
+
   <span class="pisah"></span>
 
+  <button type="button" class="tombol tombol-garis" id="tombolPanel" aria-expanded="true">Daftar tulisan</button>
   <button type="button" class="tombol tombol-garis" id="tombolReset">Kembalikan semua</button>
   <button type="button" class="tombol tombol-garis" id="tombolSalin">Salin yang diubah</button>
   <button type="button" class="tombol tombol-utama" id="tombolUnduh">Unduh CSV <span class="lencana" id="jumlahUbah">0</span></button>
@@ -145,25 +147,10 @@
 
     <div id="daftar"></div>
 
-    <div id="kotakUbah" hidden>
-      <div class="kepala">
-        <span id="kotakLokasi"></span>
-        <span id="kotakKunci"></span>
-      </div>
-      <textarea id="kotakIsi" spellcheck="true"></textarea>
-      <p class="catatan" id="catatanPenanda" hidden>
-        Tulisan ini memuat penanda seperti <code>{jumlah_kain}</code> yang otomatis diganti angka sebenarnya.
-        Biarkan penandanya bila ingin angkanya ikut terbarui sendiri.
-      </p>
-      <div class="kotak-kaki">
-        <button type="button" class="tombol tombol-halus" id="tombolKembalikan" hidden>Kembalikan yang ini</button>
-        <button type="button" class="tombol tombol-halus" id="tombolTutupKotak">Tutup</button>
-      </div>
-    </div>
-
     <div class="bantuan">
-      <p style="margin:0 0 8px"><strong>Cara pakai:</strong> klik tulisan mana pun di pratinjau sebelah kiri,
-      lalu ubah di kotak yang muncul. Perubahan langsung terlihat.</p>
+      <p style="margin:0 0 8px"><strong>Cara pakai:</strong> klik tulisan mana pun di halaman lalu langsung ketik.
+      Tekan Enter atau klik di luar untuk selesai. Arahkan kursor ke satu bagian untuk memunculkan
+      tombol <em>Naik</em>, <em>Turun</em>, dan <em>Sembunyikan</em>.</p>
       <p style="margin:0">Sumber tulisan: <strong id="sumber">memuat…</strong>.
       Perubahan tersimpan sementara di browser ini sampai Anda menekan <strong>Unduh CSV</strong>
       lalu mengimpornya ke Google Sheet.</p>

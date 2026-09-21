@@ -48,6 +48,57 @@
     });
   }
 
+  /* ---------- Terapkan tampilan khusus dari sheet (kunci berawalan _) ---------- */
+  function terapkanTampilan() {
+    var T = window.TEKS || {};
+
+    // Warna
+    var akar = document.documentElement;
+    if (T._warna_utama) {
+      akar.style.setProperty("--navy-900", T._warna_utama);
+      akar.style.setProperty("--navy-800", campur(T._warna_utama, "#ffffff", 0.08));
+      akar.style.setProperty("--navy-700", campur(T._warna_utama, "#ffffff", 0.16));
+      akar.style.setProperty("--navy-600", campur(T._warna_utama, "#ffffff", 0.26));
+    }
+    if (T._warna_aksen) {
+      akar.style.setProperty("--terra", T._warna_aksen);
+      akar.style.setProperty("--terra-dark", campur(T._warna_aksen, "#000000", 0.14));
+      akar.style.setProperty("--terra-soft", campur(T._warna_aksen, "#ffffff", 0.82));
+    }
+
+    // Bagian yang disembunyikan
+    var sembunyi = (T._sembunyi || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+    document.querySelectorAll("[data-bagian]").forEach(function (el) {
+      el.hidden = sembunyi.indexOf(el.getAttribute("data-bagian")) !== -1;
+    });
+
+    // Urutan bagian
+    var urutan = (T._urutan || "").split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+    if (urutan.length) {
+      var induk = document.getElementById("konten");
+      if (induk) {
+        urutan.forEach(function (nama) {
+          var el = induk.querySelector('[data-bagian="' + nama + '"]');
+          if (el) induk.appendChild(el);
+        });
+      }
+    }
+  }
+  window.terapkanTampilan = terapkanTampilan;
+
+  function campur(warna, arah, kadar) {
+    var a = keRgb(warna), b = keRgb(arah);
+    if (!a || !b) return warna;
+    var c = a.map(function (v, i) { return Math.round(v + (b[i] - v) * kadar); });
+    return "#" + c.map(function (v) { return ("0" + Math.max(0, Math.min(255, v)).toString(16)).slice(-2); }).join("");
+  }
+  function keRgb(w) {
+    var m = String(w).trim().replace(/^#/, "");
+    if (m.length === 3) m = m[0] + m[0] + m[1] + m[1] + m[2] + m[2];
+    if (!/^[0-9a-f]{6}$/i.test(m)) return null;
+    return [parseInt(m.slice(0, 2), 16), parseInt(m.slice(2, 4), 16), parseInt(m.slice(4, 6), 16)];
+  }
+
   /* ---------- Terapkan teks dari sheet WL — TEKS ---------- */
   function terapkanTeks() {
     var T = window.TEKS || {};
@@ -62,7 +113,10 @@
       }
     });
   }
-  window.terapkanTeks = terapkanTeks;
+  window.terapkanTeks = function () {
+    terapkanTeks();
+    terapkanTampilan();
+  };
 
   /* ---------- Isi teks dari config ---------- */
   function isiTeks() {
@@ -175,6 +229,7 @@
     isiJam();
     isiStats();
     terapkanTeks();
+    terapkanTampilan();
     pasangTautanWa(document);
     menuMobile();
     tandaiMenuAktif();
