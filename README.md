@@ -64,6 +64,39 @@ Sheets**), Google membuat sheet **baru** dengan ID berbeda — alamat `teks` pad
 
 ---
 
+### Editor tulisan (cara termudah mengubah teks)
+
+Buka **`editor.html`** di website Anda (misalnya
+`https://dheariella.github.io/Webiste-WL/editor.html`). Halaman ini menampilkan website
+Anda di sebelah kiri dan daftar tulisan di sebelah kanan.
+
+Cara pakainya:
+
+1. Pilih halaman yang ingin diubah dari menu **Halaman** di bilah atas.
+2. **Klik tulisan mana pun** di pratinjau sebelah kiri &mdash; setiap tulisan yang bisa diubah
+   ditandai garis putus-putus.
+3. Ubah di kotak yang muncul di kanan bawah. Hasilnya **langsung terlihat** di pratinjau.
+4. Setelah selesai, tekan **Unduh CSV**, lalu impor berkasnya ke sheet `WL — TEKS`
+   (File &rarr; Import &rarr; pilih berkasnya &rarr; **Replace current sheet**).
+
+Catatan penting:
+
+- Perubahan di editor **tersimpan sementara di browser Anda saja**. Website yang dilihat
+  orang lain baru berubah setelah CSV-nya diimpor ke Google Sheet.
+- Karena tersimpan di browser, pekerjaan Anda tidak hilang bila halaman tertutup &mdash;
+  buka lagi `editor.html` dan perubahannya masih ada.
+- Tombol **Salin yang diubah** menyalin hanya baris yang Anda ubah (kunci dan isinya),
+  berguna bila ingin menempelkan beberapa sel saja secara manual ke sheet.
+- Tombol **Kembalikan semua** membuang seluruh perubahan yang belum diekspor.
+- Editor mengambil tulisan dari Google Sheet bila sheet sudah dibagikan; bila belum,
+  ia memakai salinan bawaan. Sumber yang sedang dipakai tertulis di pojok kanan bawah.
+- Tombol **Ponsel** di bilah atas memperlihatkan tampilan di layar kecil.
+
+Halaman ini tidak muncul di menu dan dikecualikan dari mesin pencari. Karena tidak
+menyimpan apa pun ke server, membukanya tidak berisiko mengubah website secara tidak sengaja.
+
+---
+
 ### Memastikan sambungannya jalan
 
 Buka **`cek-sheet.html`** di website Anda (misalnya
@@ -167,6 +200,7 @@ blog.html               Daftar artikel
 kontak.html             Alamat, jam buka, formulir penyusun pesan WhatsApp
 404.html                Halaman tidak ditemukan
 cek-sheet.html          Alat pemeriksa sambungan Google Sheet (tidak masuk menu)
+editor.html             Editor tulisan dengan pratinjau langsung (tidak masuk menu)
 blog/                   Isi artikel (6 artikel)
 assets/css/style.css    Seluruh tampilan
 assets/js/config.js     >> DATA TOKO — dari sheet PENGATURAN

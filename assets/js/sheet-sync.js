@@ -12,6 +12,9 @@
 (function () {
   "use strict";
 
+  // Dalam mode editor, isi teks dikendalikan jendela editor — jangan ditimpa sheet
+  if (/[?&]editor=1(&|$)/.test(location.search)) return;
+
   var CFG = (window.SITE && window.SITE.sheet) || {};
   if (!CFG.aktif) return;
 

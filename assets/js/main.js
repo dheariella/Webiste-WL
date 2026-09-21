@@ -8,6 +8,8 @@
   "use strict";
 
   var S = window.SITE || {};
+  var DIR_SKRIP = (document.currentScript && document.currentScript.src || "").replace(/[^/]+$/, "");
+  var MODE_EDITOR = /[?&]editor=1(&|$)/.test(location.search);
 
   /* ---------- Tautan WhatsApp ---------- */
   function waLink(text) {
@@ -28,6 +30,7 @@
   /* ---------- Penanda angka: {jumlah_kain}, {jumlah_warna}, dst ---------- */
   function angkaData() {
     var d = window.KAIN || [];
+    if (!d.length) return S.angka || {};   // halaman tanpa data kain: pakai angka cadangan
     var kategori = {};
     d.forEach(function (k) { kategori[k.kategori] = 1; });
     return {
@@ -176,5 +179,12 @@
     menuMobile();
     tandaiMenuAktif();
     reveal();
+
+    // Mode editor: muat alat bantu pengubah teks (tidak pernah aktif pada kunjungan biasa)
+    if (MODE_EDITOR) {
+      var sk = document.createElement("script");
+      sk.src = DIR_SKRIP + "editor-inline.js";
+      document.body.appendChild(sk);
+    }
   });
 })();

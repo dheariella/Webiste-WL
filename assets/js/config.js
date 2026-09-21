@@ -72,6 +72,17 @@ window.SITE = {
     teks:       "https://docs.google.com/spreadsheets/d/1jQXSY6-Qvz-xDsKgGRhgMB3GYylLHtjpVa2oYwuMxtA/gviz/tq?tqx=out:csv"
   },
 
+  /* Angka cadangan untuk penanda {jumlah_kain}, {jumlah_warna}, {jumlah_kategori},
+     dan {jumlah_sublim}, dipakai pada halaman yang belum memuat data kain.
+     Begitu data kain tersedia (halaman katalog, atau setelah sinkronisasi sheet),
+     angkanya dihitung ulang dari data sebenarnya. */
+  angka: {
+      "jumlah_kain": 33,
+      "jumlah_warna": 150,
+      "jumlah_kategori": 6,
+      "jumlah_sublim": 21
+  },
+
   // Angka pada bagian statistik beranda
   stats: [
     { angka: "33", label: "Jenis kain ready stock" },

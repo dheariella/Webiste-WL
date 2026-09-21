@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Editor Tulisan Website — Wahyu Lestari Textile</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #002f3d; --navy-2: #0d4a5e;
+    --cream: #faf7f2; --cream-2: #f2ece3; --line: #e3dbd0;
+    --ink: #16202b; --ink-soft: #4a5866; --ink-mute: #70808f;
+    --terra: #c2703d; --terra-dark: #a75d2e; --terra-soft: #f6e9de;
+    --ok: #2f9e5f;
+    --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body { margin: 0; font-family: var(--font); color: var(--ink); background: var(--cream-2);
+         display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ---------- bilah atas ---------- */
+  .atas { flex: none; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+          padding: 10px 18px; background: var(--navy); color: #fff; }
+  .atas .judul { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: .98rem; }
+  .atas .judul img { width: 30px; height: 30px; }
+  .atas .pisah { flex: 1; }
+  .atas label { font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; color: #9fb7c1; margin-right: 6px; }
+  select, input[type="search"], textarea {
+    font: inherit; border: 1px solid var(--line); border-radius: 9px; padding: 8px 11px;
+    background: #fff; color: var(--ink); max-width: 100%;
+  }
+  .atas select { border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.12); color: #fff; }
+  .atas select option { color: var(--ink); }
+
+  .tombol { font: inherit; font-weight: 700; font-size: .88rem; padding: 9px 16px; border-radius: 999px;
+            border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
+  .tombol-utama { background: var(--terra); color: #fff; }
+  .tombol-utama:hover { background: var(--terra-dark); }
+  .tombol-garis { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+  .tombol-garis:hover { background: rgba(255,255,255,.14); }
+  .tombol-halus { background: #fff; color: var(--ink); border-color: var(--line); }
+  .tombol-halus:hover { border-color: var(--navy); }
+  .tombol.sukses { background: var(--ok) !important; color: #fff !important; border-color: var(--ok) !important; }
+  .lencana { display: inline-grid; place-items: center; min-width: 21px; height: 21px; padding: 0 6px;
+             border-radius: 999px; background: rgba(255,255,255,.25); font-size: .76rem; font-weight: 800; }
+  body.ada-perubahan .lencana { background: var(--terra); }
+
+  .lebar-grup { display: inline-flex; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; overflow: hidden; }
+  .lebar-grup button { font: inherit; font-size: .82rem; font-weight: 700; padding: 7px 14px; border: 0;
+                       background: transparent; color: #cfe0e6; cursor: pointer; }
+  .lebar-grup button.aktif { background: #fff; color: var(--navy); }
+
+  /* ---------- isi ---------- */
+  .isi { flex: 1; display: flex; min-height: 0; }
+  .kiri { flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--cream-2); }
+  .bingkai { flex: 1; min-height: 0; width: 100%; margin: 0 auto; padding: 14px; transition: max-width .25s ease; }
+  iframe { width: 100%; height: 100%; border: 1px solid var(--line); border-radius: 14px; background: #fff;
+           box-shadow: 0 8px 26px rgba(0,47,61,.1); }
+  .status { flex: none; padding: 7px 20px; font-size: .8rem; color: var(--ink-mute); background: var(--cream);
+            border-top: 1px solid var(--line); }
+
+  .kanan { flex: none; width: 400px; background: #fff; border-left: 1px solid var(--line);
+           display: flex; flex-direction: column; min-height: 0; }
+  .kanan-atas { flex: none; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .kanan-atas input { width: 100%; }
+  .saring { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: .84rem;
+           color: var(--ink-soft); cursor: pointer; line-height: 1.35; }
+  .saring input { flex: none; margin: 0; width: 15px; height: 15px; accent-color: var(--terra); }
+
+  #daftar { flex: 1; overflow-y: auto; padding: 8px 10px 20px; }
+  .grup { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-mute);
+          margin: 16px 6px 7px; font-weight: 800; }
+  .baris { display: block; width: 100%; text-align: left; font: inherit; cursor: pointer;
+           background: transparent; border: 1px solid transparent; border-radius: 10px; padding: 9px 11px; }
+  .baris:hover { background: var(--cream); border-color: var(--line); }
+  .baris.aktif { background: var(--terra-soft); border-color: #e5c6ad; }
+  .baris .cuplik { display: block; font-size: .87rem; line-height: 1.45; color: var(--ink); }
+  .baris .kunci-kecil { display: block; font-size: .7rem; color: var(--ink-mute); margin-top: 3px; font-family: ui-monospace, monospace; }
+  .baris.diubah .cuplik { font-weight: 700; }
+  .baris.diubah::before { content: "diubah"; float: right; margin-left: 8px; font-size: .64rem; font-weight: 800;
+                          text-transform: uppercase; letter-spacing: .06em; color: var(--terra-dark);
+                          background: var(--terra-soft); padding: 2px 7px; border-radius: 999px; }
+  .kosong { padding: 24px 12px; color: var(--ink-mute); font-size: .9rem; text-align: center; }
+
+  /* ---------- kotak ubah ---------- */
+  #kotakUbah { flex: none; border-top: 1px solid var(--line); padding: 14px 16px 16px; background: var(--cream); }
+  #kotakUbah .kepala { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  #kotakLokasi { font-size: .74rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-mute); font-weight: 800; }
+  #kotakKunci { font-family: ui-monospace, monospace; font-size: .7rem; color: var(--ink-mute); }
+  #kotakIsi { width: 100%; min-height: 128px; resize: vertical; line-height: 1.6; font-size: .93rem; }
+  #kotakIsi:focus { outline: 2px solid var(--terra); outline-offset: 1px; }
+  .kotak-kaki { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .catatan { margin: 9px 0 0; font-size: .8rem; color: var(--ink-soft); background: var(--terra-soft);
+             border-radius: 8px; padding: 8px 11px; }
+  .catatan code { background: rgba(255,255,255,.7); padding: 1px 5px; border-radius: 4px; }
+
+  .bantuan { padding: 12px 16px; font-size: .8rem; color: var(--ink-soft); background: var(--cream);
+             border-top: 1px solid var(--line); }
+  .bantuan strong { color: var(--ink); }
+
+  @media (max-width: 1100px) {
+    body { overflow: auto; }
+    .isi { flex-direction: column; }
+    .kanan { width: 100%; border-left: 0; border-top: 1px solid var(--line); }
+    .bingkai { height: 62vh; }
+    #daftar { max-height: 340px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="atas">
+  <span class="judul"><img src="assets/img/favicon.svg" alt=""> Editor Tulisan</span>
+
+  <span><label for="pilihHalaman">Halaman</label><select id="pilihHalaman"></select></span>
+
+  <span class="lebar-grup">
+    <button type="button" data-lebar="100%" class="aktif">Layar lebar</button>
+    <button type="button" data-lebar="430px">Ponsel</button>
+  </span>
+
+  <span class="pisah"></span>
+
+  <button type="button" class="tombol tombol-garis" id="tombolReset">Kembalikan semua</button>
+  <button type="button" class="tombol tombol-garis" id="tombolSalin">Salin yang diubah</button>
+  <button type="button" class="tombol tombol-utama" id="tombolUnduh">Unduh CSV <span class="lencana" id="jumlahUbah">0</span></button>
+</header>
+
+<div class="isi">
+  <div class="kiri">
+    <div class="bingkai"><iframe id="pratinjau" title="Pratinjau website"></iframe></div>
+    <p class="status" id="status">Memuat…</p>
+  </div>
+
+  <aside class="kanan">
+    <div class="kanan-atas">
+      <input type="search" id="cari" placeholder="Cari tulisan… (mis. gamis, FAQ, judul)" autocomplete="off">
+      <label class="saring"><input type="checkbox" id="hanyaHalaman" checked> Hanya tampilkan tulisan di halaman ini</label>
+    </div>
+
+    <div id="daftar"></div>
+
+    <div id="kotakUbah" hidden>
+      <div class="kepala">
+        <span id="kotakLokasi"></span>
+        <span id="kotakKunci"></span>
+      </div>
+      <textarea id="kotakIsi" spellcheck="true"></textarea>
+      <p class="catatan" id="catatanPenanda" hidden>
+        Tulisan ini memuat penanda seperti <code>{jumlah_kain}</code> yang otomatis diganti angka sebenarnya.
+        Biarkan penandanya bila ingin angkanya ikut terbarui sendiri.
+      </p>
+      <div class="kotak-kaki">
+        <button type="button" class="tombol tombol-halus" id="tombolKembalikan" hidden>Kembalikan yang ini</button>
+        <button type="button" class="tombol tombol-halus" id="tombolTutupKotak">Tutup</button>
+      </div>
+    </div>
+
+    <div class="bantuan">
+      <p style="margin:0 0 8px"><strong>Cara pakai:</strong> klik tulisan mana pun di pratinjau sebelah kiri,
+      lalu ubah di kotak yang muncul. Perubahan langsung terlihat.</p>
+      <p style="margin:0">Sumber tulisan: <strong id="sumber">memuat…</strong>.
+      Perubahan tersimpan sementara di browser ini sampai Anda menekan <strong>Unduh CSV</strong>
+      lalu mengimpornya ke Google Sheet.</p>
+    </div>
+  </aside>
+</div>
+
+<script src="assets/js/csv.js"></script>
+<script src="assets/js/config.js"></script>
+<script src="assets/js/editor.js"></script>
+</body>
+</html>
