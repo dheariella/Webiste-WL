@@ -48,6 +48,65 @@
     });
   }
 
+  /* ---------- Ikon ---------- */
+  function terapkanIkon() {
+    var T = window.TEKS || {};
+    if (!window.gambarIkon) return;
+    document.querySelectorAll("[data-ikon]").forEach(function (el) {
+      var nama = (T[el.getAttribute("data-ikon")] || "").trim();
+      if (!nama) return;
+      var svg = window.gambarIkon(nama);
+      if (svg && el.getAttribute("data-ikon-kini") !== nama) {
+        el.innerHTML = svg;
+        el.setAttribute("data-ikon-kini", nama);
+      }
+    });
+  }
+  window.terapkanIkon = terapkanIkon;
+
+  /* ---------- Pilihan tampilan (huruf, sudut, kartu, tombol, kerapatan) ---------- */
+  var HURUF = {
+    bawaan: null,
+    elegan: { judul: "Playfair Display", isi: "Lato", url: "Playfair+Display:wght@500;600;700&family=Lato:wght@400;700;900" },
+    modern: { judul: "Sora", isi: "Inter", url: "Sora:wght@500;600;700&family=Inter:wght@400;600;700;800" },
+    lembut: { judul: "Quicksand", isi: "Nunito Sans", url: "Quicksand:wght@500;600;700&family=Nunito+Sans:wght@400;600;700;800" },
+    tegas: { judul: "Archivo", isi: "Archivo", url: "Archivo:wght@500;600;700;800" },
+    hangat: { judul: "Lora", isi: "Source Sans 3", url: "Lora:wght@500;600;700&family=Source+Sans+3:wght@400;600;700;800" }
+  };
+
+  function terapkanHuruf(pilihan) {
+    var akar = document.documentElement;
+    var h = HURUF[pilihan];
+    if (!h) {
+      akar.style.removeProperty("--font-serif");
+      akar.style.removeProperty("--font-sans");
+      return;
+    }
+    var id = "huruf-pilihan";
+    var tautan = document.getElementById(id);
+    var alamat = "https://fonts.googleapis.com/css2?family=" + h.url + "&display=swap";
+    if (!tautan) {
+      tautan = document.createElement("link");
+      tautan.id = id;
+      tautan.rel = "stylesheet";
+      document.head.appendChild(tautan);
+    }
+    if (tautan.getAttribute("href") !== alamat) tautan.setAttribute("href", alamat);
+    akar.style.setProperty("--font-serif", '"' + h.judul + '", Georgia, serif');
+    akar.style.setProperty("--font-sans", '"' + h.isi + '", system-ui, sans-serif');
+  }
+
+  function terapkanGaya() {
+    var T = window.TEKS || {};
+    var akar = document.documentElement;
+    akar.setAttribute("data-sudut", T._sudut || "sedang");
+    akar.setAttribute("data-kartu", T._kartu || "bayangan");
+    akar.setAttribute("data-tombol", T._tombol || "bulat");
+    akar.setAttribute("data-kerapatan", T._kerapatan || "normal");
+    terapkanHuruf(T._huruf || "bawaan");
+  }
+  window.terapkanGaya = terapkanGaya;
+
   /* ---------- Gambar ---------- */
   /* Mengubah tautan Google Drive menjadi alamat gambar yang bisa ditampilkan
      langsung, sekaligus membiarkan alamat biasa dan berkas lokal apa adanya. */
@@ -156,7 +215,11 @@
     terapkanTeks();
     terapkanTampilan();
     terapkanGambar();
+    terapkanIkon();
+    terapkanGaya();
     terapkanGambar();
+    terapkanIkon();
+    terapkanGaya();
     if (window.terapkanAnimasi) window.terapkanAnimasi();
   };
 
@@ -273,6 +336,8 @@
     terapkanTeks();
     terapkanTampilan();
     terapkanGambar();
+    terapkanIkon();
+    terapkanGaya();
     pasangTautanWa(document);
     menuMobile();
     tandaiMenuAktif();

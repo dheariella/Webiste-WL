@@ -46,7 +46,12 @@
     '  background:#c2703d;color:#fff;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;',
     '  font:700 12px/1 system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,47,61,.35)}',
     '#alatGambar.tampil{display:inline-flex}',
-    '[data-gambar].gambar-lewat{outline:3px solid #c2703d;outline-offset:-3px}'
+    '[data-gambar].gambar-lewat{outline:3px solid #c2703d;outline-offset:-3px}',
+    '#alatIkon{position:absolute;z-index:52;display:none;align-items:center;gap:6px;',
+    '  background:#002f3d;color:#fff;border:0;border-radius:999px;padding:7px 13px;cursor:pointer;',
+    '  font:700 12px/1 system-ui,sans-serif;box-shadow:0 6px 18px rgba(0,47,61,.35)}',
+    '#alatIkon.tampil{display:inline-flex}',
+    '[data-ikon].ikon-lewat{outline:2px solid #002f3d;outline-offset:4px;border-radius:6px}'
   ].join("");
   document.documentElement.appendChild(gaya);
 
@@ -85,6 +90,37 @@
     tempatkanAlatGambar(slot);
   }
 
+  var alatIkon = document.createElement("button");
+  alatIkon.id = "alatIkon";
+  alatIkon.type = "button";
+  alatIkon.textContent = "Ganti ikon";
+  document.body.appendChild(alatIkon);
+  var ikonTersorot = null;
+
+  function tempatkanAlatIkon(el) {
+    var r = el.getBoundingClientRect();
+    alatIkon.style.top = (window.scrollY + r.bottom + 8) + "px";
+    alatIkon.style.left = (window.scrollX + r.left) + "px";
+  }
+
+  function sorotIkon(el) {
+    if (ikonTersorot === el) return;
+    if (ikonTersorot) ikonTersorot.classList.remove("ikon-lewat");
+    ikonTersorot = el;
+    if (!el) { alatIkon.classList.remove("tampil"); return; }
+    el.classList.add("ikon-lewat");
+    alatIkon.classList.add("tampil");
+    tempatkanAlatIkon(el);
+  }
+
+  alatIkon.addEventListener("click", function (e) {
+    e.preventDefault();
+    if (!ikonTersorot) return;
+    parent.postMessage({ dari: "pratinjau", jenis: "ikon",
+                         kunci: ikonTersorot.getAttribute("data-ikon"),
+                         bawaan: ikonTersorot.getAttribute("data-ikon-bawaan") || "" }, ASAL);
+  });
+
   alatGambar.addEventListener("click", function (e) {
     e.preventDefault();
     if (!slotTersorot) return;
@@ -115,6 +151,9 @@
     if (alat.contains(e.target)) return;
     var sec = e.target.closest && e.target.closest("[data-bagian]");
     sorotBagian(sec || null);
+    if (alatIkon.contains(e.target)) return;
+    var kotakIkon = e.target.closest && e.target.closest("[data-ikon]");
+    sorotIkon(kotakIkon || null);
     if (alatGambar.contains(e.target)) return;
     var slot = e.target.closest && e.target.closest("[data-gambar]");
     sorotSlot(slot || null);
@@ -122,10 +161,12 @@
   window.addEventListener("scroll", function () {
     if (bagianTersorot) tempatkanAlat(bagianTersorot);
     if (slotTersorot) tempatkanAlatGambar(slotTersorot);
+    if (ikonTersorot) tempatkanAlatIkon(ikonTersorot);
   }, { passive: true });
   window.addEventListener("resize", function () {
     if (bagianTersorot) tempatkanAlat(bagianTersorot);
     if (slotTersorot) tempatkanAlatGambar(slotTersorot);
+    if (ikonTersorot) tempatkanAlatIkon(ikonTersorot);
   });
 
   alat.addEventListener("click", function (e) {
@@ -218,7 +259,7 @@
   }, true);
 
   document.addEventListener("click", function (e) {
-    if (alat.contains(e.target) || alatGambar.contains(e.target)) return;
+    if (alat.contains(e.target) || alatGambar.contains(e.target) || alatIkon.contains(e.target)) return;
     var sasaran = e.target.closest && e.target.closest("[data-teks]");
     if (sasaran) {
       e.preventDefault();
@@ -306,11 +347,14 @@
     var gambar = [].map.call(document.querySelectorAll("[data-gambar]"), function (el) {
       return el.getAttribute("data-gambar");
     });
+    var ikon = [].map.call(document.querySelectorAll("[data-ikon]"), function (el) {
+      return { kunci: el.getAttribute("data-ikon"), bawaan: el.getAttribute("data-ikon-bawaan") || "" };
+    });
     var bagian = [].map.call(document.querySelectorAll("[data-bagian]"), function (el) {
       var j = el.querySelector("h1, h2, h3");
       return { nama: el.getAttribute("data-bagian"), judul: j ? j.textContent.trim().slice(0, 44) : "Bagian" };
     });
-    parent.postMessage({ dari: "pratinjau", jenis: "siap", kunci: kunci, bagian: bagian, gambar: gambar }, ASAL);
+    parent.postMessage({ dari: "pratinjau", jenis: "siap", kunci: kunci, bagian: bagian, gambar: gambar, ikon: ikon }, ASAL);
   }
 
   if (document.readyState === "loading") {

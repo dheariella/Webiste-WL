@@ -117,6 +117,29 @@ beranda), lalu klik tombol **Tambah/Ganti gambar**. Ada dua cara mengisinya:
 Selama slot gambar dibiarkan kosong, yang tampil adalah gradasi warna seperti sekarang &mdash;
 jadi website tetap rapi walaupun belum ada satu foto pun.
 
+**Mengganti ikon.** Arahkan kursor ke ikon mana pun (enam ikon keunggulan di beranda, lima
+ikon informasi di halaman Kontak), lalu tekan tombol **Ganti ikon** yang muncul di bawahnya.
+Pustakanya berisi 42 ikon bergaya garis yang serasi satu sama lain, lengkap dengan kotak
+pencarian. Ikon mengikuti warna aksen website. Tombol **Kembalikan ke semula** mengembalikan
+ikon bawaannya.
+
+**Mengubah tampilan UI.** Tombol **Tampilan** di bilah atas membuka panel berisi:
+
+| Pilihan | Isinya |
+|---|---|
+| Warna utama | Hero, footer, tombol utama, logo |
+| Warna aksen | Harga, tautan, sorotan, ikon |
+| Pasangan huruf | Klasik (sekarang), Elegan, Modern, Lembut, Tegas, Hangat |
+| Kelengkungan sudut | Tajam, Sedang, Bulat |
+| Gaya kartu | Bayangan halus, Garis tegas, Polos |
+| Bentuk tombol | Bulat penuh, Agak bulat, Kotak |
+| Kerapatan | Padat, Normal, Lapang &mdash; mengatur jarak antar bagian |
+| Animasi | Nyala/Mati beserta kecepatannya |
+
+Setiap pilihan langsung terlihat di pratinjau dan berlaku untuk **seluruh halaman**, bukan
+hanya halaman yang sedang dibuka. Pasangan huruf memuat sendiri berkas hurufnya dari Google
+Fonts saat dipilih.
+
 **Mengatur animasi.** Dua pilihan di bilah atas: **Animasi** (Nyala/Mati) dan kecepatannya
 (Lambat/Sedang/Cepat). Mematikan animasi membuat seluruh isi langsung tampil tanpa gerak.
 Pengunjung yang mengaktifkan pengaturan "kurangi gerak" di perangkatnya otomatis mendapat
@@ -158,6 +181,16 @@ ini boleh diubah langsung di sheet bila perlu:
 | `_animasi_kecepatan` | `lambat`, `sedang`, atau `cepat` |
 | `_gambar_hero` | Tautan foto latar hero beranda |
 | `_gambar_kat_1` … `_gambar_kat_6` | Tautan foto tiap kartu kategori di beranda |
+| `_huruf` | `bawaan`, `elegan`, `modern`, `lembut`, `tegas`, atau `hangat` |
+| `_sudut` | `tajam`, `sedang`, atau `bulat` |
+| `_kartu` | `bayangan`, `garis`, atau `polos` |
+| `_tombol` | `bulat`, `sedang`, atau `kotak` |
+| `_kerapatan` | `padat`, `normal`, atau `lapang` |
+| `_ikon_unggul1` … `_ikon_unggul6` | Nama ikon keunggulan di beranda |
+| `_ikon_kontak_peta`, `_ikon_kontak_telepon`, `_ikon_kontak_surat`, `_ikon_kontak_instagram`, `_ikon_kontak_jam` | Nama ikon di halaman Kontak |
+
+Nama ikon yang sah adalah kunci pada `assets/js/ikon.js`, misalnya `gunting`, `truk`, `jam`,
+`kaos`, `gulungan`. Mengosongkan barisnya mengembalikan ikon bawaannya.
 
 Penanda bagian seperti `index-3` diberikan berurutan sesuai letaknya di halaman. Bila
 kelak ada bagian baru yang disisipkan, penomorannya bergeser &mdash; jadi periksa lagi
@@ -275,6 +308,7 @@ assets/js/produk-data.js>> DATA KAIN & WARNA — dari sheet KAIN + WARNA
 assets/js/main.js       Menu, tautan WhatsApp, animasi
 assets/js/produk.js     Pencarian, filter, dan detail katalog
 assets/js/anim.js       Menyalakan animasi dan menghitung angka statistik
+assets/js/ikon.js       Pustaka 42 ikon garis yang dipakai di halaman dan editor
 assets/js/sheet-sync.js Membaca Google Sheet dan memperbarui isi halaman
 data/WL-TEKS.csv        Isi awal untuk sheet WL — TEKS (diimpor sekali)
 sitemap.xml, robots.txt Untuk mesin pencari

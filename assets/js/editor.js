@@ -15,11 +15,18 @@
     _sembunyi:    { halaman: "Tampilan", bagian: "Bagian", label: "Bagian disembunyikan" },
     _urutan:      { halaman: "Tampilan", bagian: "Bagian", label: "Urutan bagian" },
     _animasi:     { halaman: "Tampilan", bagian: "Animasi", label: "Animasi nyala/mati" },
-    _animasi_kecepatan: { halaman: "Tampilan", bagian: "Animasi", label: "Kecepatan animasi" }
+    _animasi_kecepatan: { halaman: "Tampilan", bagian: "Animasi", label: "Kecepatan animasi" },
+    _huruf:      { halaman: "Tampilan", bagian: "Bentuk", label: "Pasangan huruf" },
+    _sudut:      { halaman: "Tampilan", bagian: "Bentuk", label: "Kelengkungan sudut" },
+    _kartu:      { halaman: "Tampilan", bagian: "Bentuk", label: "Gaya kartu" },
+    _tombol:     { halaman: "Tampilan", bagian: "Bentuk", label: "Bentuk tombol" },
+    _kerapatan:  { halaman: "Tampilan", bagian: "Bentuk", label: "Kerapatan" }
   };
   var WARNA_BAWAAN = {
     _warna_utama: "#002f3d", _warna_aksen: "#c2703d",
-    _animasi: "nyala", _animasi_kecepatan: "sedang"
+    _animasi: "nyala", _animasi_kecepatan: "sedang",
+    _huruf: "bawaan", _sudut: "sedang", _kartu: "bayangan",
+    _tombol: "bulat", _kerapatan: "normal"
   };
 
   var HALAMAN = [
@@ -31,8 +38,9 @@
   ];
 
   var asli = {}, meta = {}, urutanKunci = [], ubah = {};
-  var kunciDiHalaman = [], bagianDiHalaman = [], gambarDiHalaman = [];
+  var kunciDiHalaman = [], bagianDiHalaman = [], gambarDiHalaman = [], ikonDiHalaman = [];
   var kunciAktif = null, sedangKetik = false, gambarAktif = null;
+  var ikonAktif = null, ikonBawaanAktif = "";
 
   var $ = function (id) { return document.getElementById(id); };
   var elPratinjau = $("pratinjau"), elDaftar = $("daftar"), elCari = $("cari");
@@ -189,6 +197,15 @@
       kunciDiHalaman = d.kunci || [];
       bagianDiHalaman = d.bagian || [];
       gambarDiHalaman = d.gambar || [];
+      ikonDiHalaman = d.ikon || [];
+      ikonDiHalaman.forEach(function (o) {
+        if (!(o.kunci in meta)) {
+          asli[o.kunci] = "";
+          meta[o.kunci] = { halaman: "Tampilan", bagian: "Ikon", label: "Ikon" };
+          urutanKunci.push(o.kunci);
+          KHUSUS[o.kunci] = meta[o.kunci];
+        }
+      });
       gambarDiHalaman.forEach(function (k) {
         if (!(k in meta)) {
           asli[k] = "";
@@ -213,6 +230,8 @@
     } else if (d.jenis === "selesai") {
       sedangKetik = false;
       kirimTeks();
+    } else if (d.jenis === "ikon") {
+      bukaDialogIkon(d.kunci, d.bawaan);
     } else if (d.jenis === "gambar") {
       bukaDialogGambar(d.kunci);
     } else if (d.jenis === "bagian") {
@@ -221,6 +240,28 @@
       else if (d.aksi === "sembunyi") alihSembunyi(d.nama);
     }
   });
+
+  /* -------------------------------------------------------- dialog ikon */
+  function gambarPetakIkon() {
+    var q = ($("ikonCari").value || "").trim().toLowerCase();
+    var semua = Object.keys(window.IKON || {}).filter(function (n) { return !q || n.indexOf(q) !== -1; });
+    var kini = nilai(ikonAktif) || ikonBawaanAktif;
+    $("ikonPetak").innerHTML = semua.length
+      ? semua.map(function (n) {
+          return '<button type="button" class="ikon-pilihan' + (n === kini ? " aktif" : "") +
+                 '" data-ikon-nama="' + n + '">' + window.gambarIkon(n) + "<span>" + n + "</span></button>";
+        }).join("")
+      : '<p class="kosong" style="grid-column:1/-1">Tidak ada ikon yang cocok.</p>';
+  }
+  function bukaDialogIkon(kunci, bawaan) {
+    ikonAktif = kunci;
+    ikonBawaanAktif = bawaan || "";
+    $("ikonCari").value = "";
+    gambarPetakIkon();
+    $("dialogIkon").hidden = false;
+    $("ikonCari").focus();
+  }
+  function tutupDialogIkon() { $("dialogIkon").hidden = true; ikonAktif = null; }
 
   /* ------------------------------------------------------ dialog gambar */
   function bukaDialogGambar(kunci) {
@@ -307,6 +348,39 @@
       });
     });
 
+    $("tombolTampilan").addEventListener("click", function (e) {
+      e.stopPropagation();
+      var p = $("panelTampilan");
+      p.hidden = !p.hidden;
+      this.setAttribute("aria-expanded", p.hidden ? "false" : "true");
+    });
+    $("panelTampilan").addEventListener("click", function (e) { e.stopPropagation(); });
+    document.addEventListener("click", function () { $("panelTampilan").hidden = true;
+      $("tombolTampilan").setAttribute("aria-expanded", "false"); });
+
+    [["pilihHuruf", "_huruf"], ["pilihSudut", "_sudut"], ["pilihKartu", "_kartu"],
+     ["pilihTombol", "_tombol"], ["pilihKerapatan", "_kerapatan"]].forEach(function (p) {
+      var el = $(p[0]);
+      el.value = nilai(p[1]) || WARNA_BAWAAN[p[1]];
+      el.addEventListener("change", function () {
+        setNilai(p[1], this.value); kirimTeks(); gambarDaftar();
+      });
+    });
+
+    $("ikonCari").addEventListener("input", gambarPetakIkon);
+    $("ikonPetak").addEventListener("click", function (e) {
+      var b = e.target.closest(".ikon-pilihan");
+      if (!b || !ikonAktif) return;
+      setNilai(ikonAktif, b.getAttribute("data-ikon-nama"));
+      kirimTeks(); gambarPetakIkon(); gambarDaftar();
+    });
+    $("ikonBawaan").addEventListener("click", function () {
+      if (!ikonAktif) return;
+      setNilai(ikonAktif, "");
+      kirimTeks(); gambarPetakIkon(); gambarDaftar();
+    });
+    $("ikonTutup").addEventListener("click", tutupDialogIkon);
+
     $("pilihAnimasi").value = nilai("_animasi") || "nyala";
     $("pilihAnimasi").addEventListener("change", function () {
       setNilai("_animasi", this.value); kirimTeks(); gambarDaftar();
@@ -336,7 +410,10 @@
       this.value = "";
     });
     document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && !$("dialogGambar").hidden) tutupDialogGambar();
+      if (e.key !== "Escape") return;
+      if (!$("dialogGambar").hidden) tutupDialogGambar();
+      else if (!$("dialogIkon").hidden) tutupDialogIkon();
+      else if (!$("panelTampilan").hidden) $("panelTampilan").hidden = true;
     });
 
     $("tombolPanel").addEventListener("click", function () {
@@ -366,6 +443,9 @@
       $("warnaAksen").value = WARNA_BAWAAN._warna_aksen;
       $("pilihAnimasi").value = "nyala";
       $("pilihKecepatan").value = "sedang";
+      ["pilihHuruf", "pilihSudut", "pilihKartu", "pilihTombol", "pilihKerapatan"].forEach(function (id, i) {
+        $(id).value = ["bawaan", "sedang", "bayangan", "bulat", "normal"][i];
+      });
       bukaHalaman(elPilihHalaman.value);
       gambarDaftar();
     });

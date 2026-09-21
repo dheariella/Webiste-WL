@@ -34,6 +34,7 @@
   --shadow: 0 10px 30px rgba(0, 47, 61, .08);
   --shadow-lg: 0 24px 60px rgba(0, 47, 61, .14);
 
+  --pad-bagian: 84px;
   --container: 1140px;
   --font-sans: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
@@ -81,8 +82,8 @@ p { margin: 0 0 1.1em; }
 
 /* ---------- 2. Layout ---------- */
 .container { width: 100%; max-width: var(--container); margin: 0 auto; padding: 0 20px; }
-.section { padding: 84px 0; }
-.section--tight { padding: 56px 0; }
+.section { padding: var(--pad-bagian, 84px) 0; }
+.section--tight { padding: calc(var(--pad-bagian, 84px) * .66) 0; }
 .section--alt { background: var(--cream-2); }
 .section--dark { background: var(--navy-900); color: #d9e2ec; }
 .section--dark h2, .section--dark h3 { color: #fff; }
@@ -517,6 +518,7 @@ p { margin: 0 0 1.1em; }
 .contact-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 18px; }
 .contact-list li { display: flex; gap: 14px; }
 .contact-list svg { width: 22px; height: 22px; color: var(--terra-dark); flex: none; margin-top: 3px; }
+.ikon-kontak { display: block; width: 22px; height: 22px; flex: none; margin-top: 3px; color: var(--terra-dark); }
 .contact-list strong { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-mute); }
 
 .jam-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
@@ -591,6 +593,61 @@ p { margin: 0 0 1.1em; }
   z-index: 1;
 }
 [data-gambar] > *:not(img.gambar-isi) { position: relative; z-index: 2; }
+
+
+/* =========================================================================
+   Pilihan tampilan — diatur dari editor lewat baris _sudut, _kartu,
+   _tombol, dan _kerapatan di sheet WL — TEKS.
+   ========================================================================= */
+
+/* ---------- Kelengkungan sudut ---------- */
+html[data-sudut="tajam"]  { --radius-sm: 2px;  --radius: 3px;  --radius-lg: 4px; }
+html[data-sudut="sedang"] { --radius-sm: 8px;  --radius: 14px; --radius-lg: 22px; }
+html[data-sudut="bulat"]  { --radius-sm: 14px; --radius: 22px; --radius-lg: 32px; }
+
+/* ---------- Gaya kartu ---------- */
+html[data-kartu="garis"] .card,
+html[data-kartu="garis"] .kain-card,
+html[data-kartu="garis"] .post-card,
+html[data-kartu="garis"] .stat {
+  box-shadow: none;
+  border-width: 1.5px;
+  border-color: var(--navy-900);
+}
+html[data-kartu="polos"] .card,
+html[data-kartu="polos"] .kain-card,
+html[data-kartu="polos"] .post-card,
+html[data-kartu="polos"] .stat {
+  box-shadow: none;
+  border-color: transparent;
+  background: var(--cream);
+}
+html[data-kartu="polos"] .section--alt .card,
+html[data-kartu="polos"] .section--alt .kain-card,
+html[data-kartu="polos"] .section--alt .post-card { background: #fff; }
+
+/* ---------- Bentuk tombol ---------- */
+html[data-tombol="sedang"] .btn,
+html[data-tombol="sedang"] .chip,
+html[data-tombol="sedang"] .wa-float { border-radius: 10px; }
+html[data-tombol="kotak"] .btn,
+html[data-tombol="kotak"] .chip,
+html[data-tombol="kotak"] .wa-float { border-radius: 3px; }
+
+/* ---------- Kerapatan ---------- */
+html[data-kerapatan="padat"]  { --pad-bagian: 54px; }
+html[data-kerapatan="normal"] { --pad-bagian: 84px; }
+html[data-kerapatan="lapang"] { --pad-bagian: 118px; }
+
+@media (max-width: 620px) {
+  html[data-kerapatan="padat"]  { --pad-bagian: 40px; }
+  html[data-kerapatan="normal"] { --pad-bagian: 60px; }
+  html[data-kerapatan="lapang"] { --pad-bagian: 76px; }
+}
+
+/* ---------- Slot ikon ---------- */
+[data-ikon] svg { width: 100%; height: 100%; display: block; }
+.icon-box[data-ikon] svg { width: 24px; height: 24px; }
 
 /* ---------- Tambahan untuk katalog WL ---------- */
 .chip-count {
