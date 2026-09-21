@@ -1,0 +1,42 @@
+# Menerbitkan website ke GitHub Pages setiap kali ada perubahan.
+# Berkas ini sekaligus mencoba menyalakan GitHub Pages sendiri
+# (enablement: true), sehingga biasanya tidak perlu diatur manual.
+name: Terbitkan website
+
+on:
+  push:
+    branches: [claude/nice-davinci-ctimc1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  terbitkan:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.terbit.outputs.page_url }}
+    steps:
+      - name: Ambil berkas
+        uses: actions/checkout@v4
+
+      - name: Siapkan GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
+      - name: Kemas seluruh isi folder
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Terbitkan
+        id: terbit
+        uses: actions/deploy-pages@v4
