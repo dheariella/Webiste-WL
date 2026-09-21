@@ -1,6 +1,12 @@
 # Menerbitkan website ke GitHub Pages setiap kali ada perubahan.
-# Berkas ini sekaligus mencoba menyalakan GitHub Pages sendiri
-# (enablement: true), sehingga biasanya tidak perlu diatur manual.
+#
+# Sebelum ini bisa berjalan, GitHub Pages harus dinyalakan sekali secara
+# manual: Settings > Pages > Source > pilih "GitHub Actions".
+# Menyalakannya dari dalam alur kerja tidak bisa dilakukan, karena token
+# bawaan GitHub Actions tidak berwenang membuat situs Pages baru.
+#
+# Catatan: pada akun GitHub Free, Pages hanya tersedia untuk repositori
+# publik. Repositori privat memerlukan GitHub Pro.
 name: Terbitkan website
 
 on:
@@ -29,8 +35,6 @@ jobs:
 
       - name: Siapkan GitHub Pages
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Kemas seluruh isi folder
         uses: actions/upload-pages-artifact@v3
