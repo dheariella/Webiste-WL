@@ -3,4 +3,4 @@ Allow: /
 Disallow: /cek-sheet.html
 Disallow: /editor.html
 
-Sitemap: https://www.namadomainanda.com/sitemap.xml
+Sitemap: https://dheariella.github.io/Webiste-WL/sitemap.xml

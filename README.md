@@ -9,6 +9,23 @@ database. Cukup unggah foldernya ke hosting mana pun.
 
 ---
 
+## Alamat website
+
+| Halaman | Alamat |
+|---|---|
+| **Website** | https://dheariella.github.io/Webiste-WL/ |
+| **Editor langsung** | https://dheariella.github.io/Webiste-WL/editor.html |
+| Pemeriksa sambungan sheet | https://dheariella.github.io/Webiste-WL/cek-sheet.html |
+
+Situs diterbitkan lewat GitHub Pages dan **memperbarui diri sendiri**: setiap perubahan yang
+masuk ke branch `claude/nice-davinci-ctimc1` disalin ke branch `gh-pages` oleh alur kerja
+`.github/workflows/pages.yml`, lalu GitHub menayangkannya dalam satu sampai dua menit.
+
+Branch `gh-pages` dibuat otomatis dan tidak perlu disunting sendiri &mdash; isinya ditimpa
+setiap kali penerbitan berjalan.
+
+---
+
 ## 1. Website ini tersambung ke Google Sheet Anda
 
 Isi website dibaca langsung dari empat Google Sheet di folder Drive **Website WL**.
@@ -373,19 +390,33 @@ utama &mdash; mengikuti warna ini.
 Bila logo diganti di kemudian hari, timpa ketiga berkas SVG di atas dengan versi baru
 memakai nama berkas yang sama; tidak ada bagian lain yang perlu disunting.
 
-## 10. Cara mempublikasikan
+## 10. Cara penerbitan bekerja
 
-**GitHub Pages** (gratis)
-1. Buka *Settings* → *Pages* pada repositori ini.
-2. Bagian *Source*, pilih *Deploy from a branch*, lalu pilih branch dan folder `/ (root)`.
-3. Tunggu beberapa menit, alamat website akan muncul di halaman yang sama.
+Situs sudah tayang di GitHub Pages, dan penerbitannya berjalan sendiri. Tidak ada tombol yang
+perlu ditekan setelah ada perubahan.
 
-**Netlify / Vercel / cPanel**
-Unggah seluruh isi folder apa adanya. Tidak ada perintah build (*build command* dikosongkan,
-*publish directory* diisi `.`).
+**Alurnya:** perubahan masuk ke branch `claude/nice-davinci-ctimc1` &rarr; alur kerja
+*Terbitkan website* menyalin seluruh berkas ke branch `gh-pages` &rarr; GitHub membangun dan
+menayangkannya. Seluruhnya memakan waktu satu sampai dua menit. Hasil tiap penerbitan bisa
+dilihat di tab **Actions** pada repositori.
 
-Setelah punya domain, ganti `https://www.namadomainanda.com` di `sitemap.xml` dan
-`robots.txt` dengan alamat asli.
+**Catatan tentang cara ini.** Pada mulanya alur kerja memakai `actions/configure-pages` dengan
+`enablement: true` agar Pages menyala sendiri, tetapi GitHub menolaknya dengan pesan
+*Resource not accessible by integration* &mdash; token bawaan GitHub Actions memang tidak
+berwenang membuat situs Pages baru, baik ketika repositori masih privat maupun setelah
+dipublikkan. Pages akhirnya menyala sendiri begitu branch `gh-pages` dibuat, dan jalur itulah
+yang dipakai sekarang.
+
+**Bila ingin memakai domain sendiri:** beli domainnya, arahkan DNS-nya ke GitHub Pages, lalu
+isi kolom *Custom domain* di Settings &rarr; Pages. Setelah itu ganti alamat
+`https://dheariella.github.io/Webiste-WL` di `sitemap.xml` dan `robots.txt` dengan domain baru.
+
+**Menjalankan di komputer sendiri** (untuk mencoba tanpa menerbitkan):
+
+```bash
+python3 -m http.server 8000
+# lalu buka http://localhost:8000
+```
 
 ---
 
